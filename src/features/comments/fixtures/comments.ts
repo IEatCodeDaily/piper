@@ -1,0 +1,82 @@
+import type { CommentRef } from "@/features/comments/types";
+
+export const commentFixtures: CommentRef[] = [
+  {
+    id: "comment-task-schema-1",
+    externalId: "C-2001",
+    entityType: "task",
+    entityId: "task-schema",
+    body:
+      "Use semantic field names that survive different SharePoint list schemas. We can map to Graph later without changing the UI layer.",
+    bodyFormat: "markdown",
+    author: {
+      id: "person-zephyr",
+      externalId: "u-101",
+      displayName: "Zephyr",
+      email: "zephyr@piper.local",
+      jobTitle: "Engineering Lead",
+      department: "Platform",
+      avatarUrl: "https://api.dicebear.com/9.x/initials/svg?seed=Zephyr",
+      presence: "busy",
+    },
+    createdAt: "2026-03-27T09:10:00.000Z",
+    updatedAt: "2026-03-27T09:22:00.000Z",
+    edited: true,
+    mentions: [],
+  },
+  {
+    id: "comment-task-query-layer-1",
+    externalId: "C-2002",
+    entityType: "task",
+    entityId: "task-query-layer",
+    body:
+      "Let's keep the repository injectable now so the Graph adapter can slot in without refactoring the view hooks.",
+    bodyFormat: "plain-text",
+    author: {
+      id: "person-raisal",
+      externalId: "u-100",
+      displayName: "Raisal",
+      email: "raisal@piper.local",
+      jobTitle: "Product Lead",
+      department: "Product",
+      avatarUrl: "https://api.dicebear.com/9.x/initials/svg?seed=Raisal",
+      presence: "online",
+    },
+    createdAt: "2026-03-27T11:05:00.000Z",
+    edited: false,
+    mentions: [
+      {
+        id: "person-zephyr",
+        externalId: "u-101",
+        displayName: "Zephyr",
+        email: "zephyr@piper.local",
+        jobTitle: "Engineering Lead",
+        department: "Platform",
+        avatarUrl: "https://api.dicebear.com/9.x/initials/svg?seed=Zephyr",
+        presence: "busy",
+      },
+    ],
+  },
+  {
+    id: "comment-project-shell-1",
+    externalId: "C-2003",
+    entityType: "project",
+    entityId: "project-core-shell",
+    body:
+      "Design language is ready. Once data hooks are in place we can replace the shell constants with live workspace state.",
+    bodyFormat: "plain-text",
+    author: {
+      id: "person-maya",
+      externalId: "u-102",
+      displayName: "Maya Chen",
+      email: "maya.chen@piper.local",
+      jobTitle: "Design Systems",
+      department: "Design",
+      avatarUrl: "https://api.dicebear.com/9.x/initials/svg?seed=Maya+Chen",
+      presence: "online",
+    },
+    createdAt: "2026-03-27T13:40:00.000Z",
+    edited: false,
+    mentions: [],
+  },
+];
