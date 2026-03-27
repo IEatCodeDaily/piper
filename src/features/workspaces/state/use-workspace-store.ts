@@ -14,8 +14,18 @@ const state: WorkspaceStoreState = {
 };
 
 const listeners = new Set<() => void>();
+const snapshot: WorkspaceStoreSnapshot = {
+  activeWorkspaceId: state.activeWorkspaceId,
+  setActiveWorkspaceId,
+  reset,
+};
+
+function updateSnapshot() {
+  snapshot.activeWorkspaceId = state.activeWorkspaceId;
+}
 
 function emitChange() {
+  updateSnapshot();
   listeners.forEach((listener) => listener());
 }
 
@@ -45,11 +55,7 @@ function reset() {
 }
 
 function getSnapshot(): WorkspaceStoreSnapshot {
-  return {
-    activeWorkspaceId: state.activeWorkspaceId,
-    setActiveWorkspaceId,
-    reset,
-  };
+  return snapshot;
 }
 
 export function useWorkspaceStore() {

@@ -5,6 +5,7 @@
     "": {
       "name": "piper-app",
       "dependencies": {
+        "@azure/msal-browser": "^4.26.1",
         "@radix-ui/react-slot": "^1.2.4",
         "@tanstack/react-query": "^5.90.5",
         "@tauri-apps/api": "^2.10.1",
@@ -36,6 +37,10 @@
     },
   },
   "packages": {
+    "@azure/msal-browser": ["@azure/msal-browser@4.30.0", "", { "dependencies": { "@azure/msal-common": "15.17.0" } }, "sha512-HBBKfbZkMVzzF5bofvS1cXuNHFVc+gt4/HOnCmG/0hsHuZRJvJvDg/+7nTwIpoqvJc8BQp5o23rBUfisOLxR+w=="],
+
+    "@azure/msal-common": ["@azure/msal-common@15.17.0", "", {}, "sha512-VQ5/gTLFADkwue+FohVuCqlzFPUq4xSrX8jeZe+iwZuY6moliNC8xt86qPVNYdtbQfELDf2Nu6LI+demFPHGgw=="],
+
     "@babel/code-frame": ["@babel/code-frame@7.29.0", "", { "dependencies": { "@babel/helper-validator-identifier": "^7.28.5", "js-tokens": "^4.0.0", "picocolors": "^1.1.1" } }, "sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw=="],
 
     "@babel/compat-data": ["@babel/compat-data@7.29.0", "", {}, "sha512-T1NCJqT/j9+cn8fvkt7jtwbLBfLC/1y1c7NtCeXFRgzGTsafi68MRv8yzkYSapBnFA6L3U2VSc02ciDzoAJhJg=="],

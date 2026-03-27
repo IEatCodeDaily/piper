@@ -1,5 +1,7 @@
 import { FolderKanban, LayoutList, PanelsTopLeft, Plus, TimerReset, UserRound } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { RuntimeControls } from "@/features/auth/components/runtime-controls";
+import { useAuthStore } from "@/features/auth/state/use-auth-store";
 import { AppShell } from "@/components/layout/app-shell";
 import type { NavigationItem } from "@/components/layout/navigation";
 import { SectionHeader } from "@/components/layout/section-header";
@@ -13,9 +15,11 @@ import { useWorkspaceProjects } from "@/features/projects/hooks/use-workspace-pr
 import { useWorkspaceTasks } from "@/features/tasks/hooks/use-workspace-tasks";
 import { useActiveWorkspace } from "@/features/workspaces/hooks/use-active-workspace";
 import { useWorkspaces } from "@/features/workspaces/hooks/use-workspaces";
+import { useWorkspaceCatalog } from "@/features/workspaces/runtime/workspace-catalog";
 import { useWorkspaceStore } from "@/features/workspaces/state/use-workspace-store";
 import { ViewSwitcher } from "@/features/views/view-switcher";
 import type { WorkspaceViewId } from "@/features/views/types";
+import { useRuntimeSettings } from "@/lib/runtime/runtime-settings";
 
 const currentUser = {
   id: "person-zephyr",
@@ -25,7 +29,7 @@ const currentUser = {
 const viewOptions: Record<WorkspaceViewId, { title: string; description: string }> = {
   workspace: {
     title: "Workspace stream",
-    description: "Cross-project stream backed by the mock repository and tuned for dense triage.",
+    description: "Cross-project stream backed by the repository layer and tuned for dense triage.",
   },
   list: {
     title: "List view",
@@ -33,7 +37,7 @@ const viewOptions: Record<WorkspaceViewId, { title: string; description: string 
   },
   kanban: {
     title: "Kanban lanes",
-    description: "Structured placeholder lanes using real task status grouping from the active workspace.",
+    description: "Structured status lanes backed by repository tasks from the active workspace.",
   },
   timeline: {
     title: "Timeline planning",
@@ -41,7 +45,7 @@ const viewOptions: Record<WorkspaceViewId, { title: string; description: string 
   },
   "my-tasks": {
     title: "My tasks",
-    description: "Assigned work filtered to a plausible current user from the shared fixtures.",
+    description: "Assigned work filtered to a plausible current user from the shared fixtures or Graph-mapped identities.",
   },
 };
 
@@ -56,10 +60,24 @@ function formatTimestamp(value: string) {
 
 export default function App() {
   const [currentView, setCurrentView] = useState<WorkspaceViewId>("workspace");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const auth = useAuthStore();
+  const { repositoryMode, setRepositoryMode } = useRuntimeSettings();
+  const { workspaces: catalogWorkspaces, imported, importWorkspaceConfigFromJson } = useWorkspaceCatalog();
   const { data: workspaces = [] } = useWorkspaces();
   const { data: activeWorkspace, isLoading: workspaceLoading } = useActiveWorkspace();
   const { activeWorkspaceId, setActiveWorkspaceId } = useWorkspaceStore();
   const { selectedTaskId, selectTask, clearSelection } = useSelectionStore();
+
+  useEffect(() => {
+    void auth.initialize();
+  }, [auth]);
+
+  useEffect(() => {
+    if (!activeWorkspaceId && workspaces[0]?.id) {
+      setActiveWorkspaceId(workspaces[0].id);
+    }
+  }, [activeWorkspaceId, setActiveWorkspaceId, workspaces]);
 
   const taskQuery = activeWorkspace ? { workspaceId: activeWorkspace.id, includeCompleted: true } : null;
   const projectQuery = activeWorkspace ? { workspaceId: activeWorkspace.id, includeCompleted: true } : null;
@@ -105,7 +123,17 @@ export default function App() {
   const pageTitle = activeWorkspace ? `${activeWorkspace.name} · ${activeViewConfig.title}` : "Loading workspace…";
   const pageDescription = activeWorkspace
     ? `${activeViewConfig.description} ${activeWorkspace.summary.openTaskCount} open tasks across ${activeWorkspace.summary.projectCount} active project tracks.`
-    : "Loading workspace metadata from the mock repository.";
+    : "Loading workspace metadata from the configured repository mode.";
+
+  async function handleImportWorkspaceConfig(file: File) {
+    const raw = await file.text();
+    const importedWorkspace = importWorkspaceConfigFromJson(raw);
+    setActiveWorkspaceId(importedWorkspace.workspace.id);
+    if (repositoryMode === "mock") {
+      setRepositoryMode("graph-mock");
+    }
+    clearSelection();
+  }
 
   return (
     <AppShell
@@ -142,10 +170,26 @@ export default function App() {
             ) : null
           }
           footer={
-            <Button className="w-full justify-between">
-              Quick create
-              <Plus className="size-4" />
-            </Button>
+            <div className="space-y-3">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="application/json"
+                className="hidden"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (!file) {
+                    return;
+                  }
+                  void handleImportWorkspaceConfig(file);
+                  event.currentTarget.value = "";
+                }}
+              />
+              <Button className="w-full justify-between">
+                Quick create
+                <Plus className="size-4" />
+              </Button>
+            </div>
           }
         />
       }
@@ -164,8 +208,8 @@ export default function App() {
               : []
           }
           actions={
-            <Button variant="secondary" className="rounded-2xl px-4">
-              View config
+            <Button variant="secondary" className="rounded-2xl px-4" onClick={() => fileInputRef.current?.click()}>
+              Import config
             </Button>
           }
           searchPlaceholder={activeWorkspace ? `Search ${activeWorkspace.name} tasks, projects, commands…` : undefined}
@@ -176,6 +220,17 @@ export default function App() {
           <TaskDetailPanel task={selectedTask} project={selectedProject} onClose={clearSelection} />
         ) : (
           <>
+            <RuntimeControls
+              repositoryMode={repositoryMode}
+              onSelectMode={setRepositoryMode}
+              onImportConfig={() => fileInputRef.current?.click()}
+              authConfigured={auth.configured}
+              authStatus={auth.status}
+              accountLabel={auth.account?.username ?? auth.account?.name ?? undefined}
+              authError={auth.error}
+              onSignIn={auth.signIn}
+              onSignOut={auth.signOut}
+            />
             <SurfaceCard>
               <SectionHeader
                 eyebrow="Active workspace"
@@ -202,6 +257,14 @@ export default function App() {
                     ))}
                   </div>
                 </div>
+                <div className="rounded-2xl bg-[var(--surface-container-low)] px-4 py-4">
+                  <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--on-surface-variant)]">Config catalog</div>
+                  <div className="mt-3 space-y-2 text-sm text-[var(--on-surface-variant)]">
+                    <div>Total workspaces: {catalogWorkspaces.length}</div>
+                    <div>Imported configs: {imported.length}</div>
+                    <div>Repository mode: {repositoryMode}</div>
+                  </div>
+                </div>
               </div>
             </SurfaceCard>
 
@@ -213,7 +276,7 @@ export default function App() {
                 titleClassName="mt-0 text-xl"
               />
               <div className="mt-4 rounded-2xl bg-[var(--surface-container-low)] px-4 py-5 text-sm leading-6 text-[var(--on-surface-variant)]">
-                This rail stays intentionally read-only in Batch 2, but the shell is now wired to real task state and fixture comments.
+                This rail is read-only for now, but the shell is wired to repository-backed task state and flat comment threads that can be powered by SharePoint List comments.
               </div>
             </SurfaceCard>
           </>
