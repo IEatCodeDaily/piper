@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- test file uses any for partial entity mocks */
 import { describe, it, expect } from "vitest";
 import type { WorkspaceConfig } from "@/features/workspaces/types";
 import type {
@@ -5,7 +6,6 @@ import type {
   GraphListItemComment,
   GraphFieldPersonValue,
 } from "@/lib/graph/types";
-import type { CommentRef } from "@/features/comments/types";
 import {
   mapGraphListCommentToCommentRef,
   mapGraphListItemToWorkspaceProject,
@@ -17,7 +17,7 @@ import {
 } from "@/lib/graph/piper-graph-adapter";
 
 // ---------------------------------------------------------------------------
-// Minimal workspace config for tests
+// Test helpers
 // ---------------------------------------------------------------------------
 
 function makeTestConfig(): WorkspaceConfig {
@@ -75,10 +75,11 @@ function makeTestConfig(): WorkspaceConfig {
   } as unknown as WorkspaceConfig;
 }
 
-type GraphListItemFields = GraphListItem["fields"];
-function makeGraphListItem(overrides: Partial<GraphListItemFields> & Record<string, unknown> = {}): GraphListItem {
+type GraphFields = GraphListItem["fields"];
+
+function makeGraphListItem(fields: GraphFields = {}): GraphListItem {
   return {
-    id: String(Math.floor(Math.random() * 10000)),
+    id: "1",
     createdDateTime: "2026-01-15T10:00:00Z",
     lastModifiedDateTime: "2026-02-20T14:30:00Z",
     createdBy: {
@@ -87,11 +88,7 @@ function makeGraphListItem(overrides: Partial<GraphListItemFields> & Record<stri
     lastModifiedBy: {
       user: { id: "user-002", displayName: "Grace Hopper", email: "grace@example.com" },
     },
-    ...overrides,
-    fields: {
-      Title: "Test Item",
-      ...overrides.fields,
-    },
+    fields,
   };
 }
 
@@ -106,32 +103,33 @@ function makePerson(): GraphFieldPersonValue {
   };
 }
 
-// ---------------------------------------------------------------------------
+function makeGraphComment(overrides: Partial<GraphListItemComment> = {}): GraphListItemComment {
+  return {
+    id: "comment-001",
+    content: "This looks good to me.",
+    contentType: "text",
+    createdDateTime: "2026-03-01T09:00:00Z",
+    lastModifiedDateTime: "2026-03-01T09:00:00Z",
+    createdBy: {
+      user: { id: "user-003", displayName: "Alan Turing", email: "alan@example.com" },
+    },
+    ...overrides,
+  };
+}
+
+// ===========================================================================
 // mapGraphListItemToWorkspaceTask
-// ---------------------------------------------------------------------------
+// ===========================================================================
 
 describe("mapGraphListItemToWorkspaceTask", () => {
   const config = makeTestConfig();
 
-    const item = makeGraphListItem({ fields: { TaskStatus: "Backlog" } });
-    const task = mapGraphListItemToWorkspaceTask({ workspaceConfig: config, item });
-    expect(task.title).toBe("Untitled task");
-
-  });
-
-  it("defaults title to 'Untitled task' when missing", () => {
-    const item = makeGraphListItem({ fields: {} });
-    const task = mapGraphListItemToWorkspaceTask({ workspaceConfig: config, item });
-    expect(task.title).toBe("Untitled task");
-  });
-
-  it("defaults title to 'Untitled project' when missing", () => {
-    const item = makeGraphListItem({ fields: {} });
-    const project = mapGraphListItemToWorkspaceProject({ workspaceConfig: config, item });
-    expect(project.title).toBe("Untitled project");
-  });
-
-  it("defaults title to 'Untitled task' when missing", () => {
+  it("maps a basic task with title and status", () => {
+    const item = makeGraphListItem({
+      Title: "Fix login bug",
+      TaskStatus: "In Progress",
+      TaskPriority: "High",
+    });
     const task = mapGraphListItemToWorkspaceTask({ workspaceConfig: config, item });
 
     expect(task.title).toBe("Fix login bug");
@@ -142,14 +140,15 @@ describe("mapGraphListItemToWorkspaceTask", () => {
     expect(task.id).toContain("list-tasks");
   });
 
-  it("defaults title to 'Untitled task' when missing", () => {
-    const item = makeGraphListItem({ fields: { TaskStatus: "Backlog" } });
+  it("defaults title to 'Untitled task' when Title field is missing", () => {
+    const item = makeGraphListItem();
     const task = mapGraphListItemToWorkspaceTask({ workspaceConfig: config, item });
+
     expect(task.title).toBe("Untitled task");
   });
 
   it("normalizes various status values", () => {
-    const cases: [string, string][] = [
+    const cases: Array<[string, string]> = [
       ["Not Started", "planned"],
       ["planned", "planned"],
       ["In Progress", "in-progress"],
@@ -163,14 +162,14 @@ describe("mapGraphListItemToWorkspaceTask", () => {
     ];
 
     for (const [input, expected] of cases) {
-      const item = makeGraphListItem({ fields: { TaskStatus: input } });
+      const item = makeGraphListItem({ TaskStatus: input });
       const task = mapGraphListItemToWorkspaceTask({ workspaceConfig: config, item });
-      expect(task.status).toBe(expected);
+      expect(task.status, `status "${input}" -> "${expected}"`).toBe(expected);
     }
   });
 
   it("normalizes priority values", () => {
-    const cases: [string, string][] = [
+    const cases: Array<[string, string]> = [
       ["urgent", "urgent"],
       ["High", "high"],
       ["medium", "medium"],
@@ -180,17 +179,15 @@ describe("mapGraphListItemToWorkspaceTask", () => {
     ];
 
     for (const [input, expected] of cases) {
-      const item = makeGraphListItem({ fields: { TaskPriority: input } });
+      const item = makeGraphListItem({ TaskPriority: input });
       const task = mapGraphListItemToWorkspaceTask({ workspaceConfig: config, item });
-      expect(task.priority).toBe(expected);
+      expect(task.priority, `priority "${input}" -> "${expected}"`).toBe(expected);
     }
   });
 
   it("maps assignee from person field", () => {
     const person = makePerson();
-    const item = makeGraphListItem({
-      fields: { AssignedTo: person },
-    });
+    const item = makeGraphListItem({ AssignedTo: person });
     const task = mapGraphListItemToWorkspaceTask({ workspaceConfig: config, item });
 
     expect(task.assignee).toBeDefined();
@@ -200,9 +197,7 @@ describe("mapGraphListItemToWorkspaceTask", () => {
 
   it("maps project reference from lookup field", () => {
     const item = makeGraphListItem({
-      fields: {
-        ProjectLookup: { LookupId: 5, LookupValue: "ALPHA" },
-      },
+      ProjectLookup: { LookupId: 5, LookupValue: "ALPHA" },
     });
     const task = mapGraphListItemToWorkspaceTask({ workspaceConfig: config, item });
 
@@ -213,9 +208,7 @@ describe("mapGraphListItemToWorkspaceTask", () => {
 
   it("maps parent task reference from lookup field", () => {
     const item = makeGraphListItem({
-      fields: {
-        ParentTask: { LookupId: 99, LookupValue: "Parent task" },
-      },
+      ParentTask: { LookupId: 99, LookupValue: "Parent task" },
     });
     const task = mapGraphListItemToWorkspaceTask({ workspaceConfig: config, item });
 
@@ -223,30 +216,31 @@ describe("mapGraphListItemToWorkspaceTask", () => {
     expect(task.parentTaskId).toContain("99");
   });
 
-  it("maps labels from comma-separated string field", () => {
-    const item = makeGraphListItem({
-      fields: { Tags: "frontend; bug; priority" },
-    });
+  it("maps labels from semicolon-separated string", () => {
+    const item = makeGraphListItem({ Tags: "frontend; bug; priority" });
     const task = mapGraphListItemToWorkspaceTask({ workspaceConfig: config, item });
 
     expect(task.labels).toEqual(["frontend", "bug", "priority"]);
   });
 
-  it("maps labels from semicolon-separated string", () => {
-    const item = makeGraphListItem({
-      fields: { Tags: "backend;infra" },
-    });
+  it("maps labels from comma-separated string", () => {
+    const item = makeGraphListItem({ Tags: "backend, infra" });
     const task = mapGraphListItemToWorkspaceTask({ workspaceConfig: config, item });
 
     expect(task.labels).toEqual(["backend", "infra"]);
   });
 
+  it("returns empty labels for undefined field", () => {
+    const item = makeGraphListItem();
+    const task = mapGraphListItemToWorkspaceTask({ workspaceConfig: config, item });
+
+    expect(task.labels).toEqual([]);
+  });
+
   it("maps date fields", () => {
     const item = makeGraphListItem({
-      fields: {
-        StartDate: "2026-01-01",
-        DueDate: "2026-03-15",
-      },
+      StartDate: "2026-01-01",
+      DueDate: "2026-03-15",
     });
     const task = mapGraphListItemToWorkspaceTask({ workspaceConfig: config, item });
 
@@ -255,7 +249,7 @@ describe("mapGraphListItemToWorkspaceTask", () => {
   });
 
   it("handles task with all undefined optional fields", () => {
-    const item = makeGraphListItem({ fields: {} });
+    const item = makeGraphListItem();
     const task = mapGraphListItemToWorkspaceTask({ workspaceConfig: config, item });
 
     expect(task.assignee).toBeUndefined();
@@ -265,10 +259,11 @@ describe("mapGraphListItemToWorkspaceTask", () => {
     expect(task.startDate).toBeUndefined();
     expect(task.dueDate).toBeUndefined();
     expect(task.description).toBe("");
+    expect(task.sortOrder).toBe(0);
   });
 
   it("uses item.id as externalId fallback when TaskKey is missing", () => {
-    const item = makeGraphListItem({ fields: {} });
+    const item = makeGraphListItem();
     item.id = "42";
     const task = mapGraphListItemToWorkspaceTask({ workspaceConfig: config, item });
 
@@ -276,7 +271,7 @@ describe("mapGraphListItemToWorkspaceTask", () => {
   });
 
   it("preserves createdBy and modifiedBy from Graph metadata", () => {
-    const item = makeGraphListItem({ fields: {} });
+    const item = makeGraphListItem();
     const task = mapGraphListItemToWorkspaceTask({ workspaceConfig: config, item });
 
     expect(task.createdBy.displayName).toBe("Ada Lovelace");
@@ -284,22 +279,19 @@ describe("mapGraphListItemToWorkspaceTask", () => {
   });
 });
 
-// ---------------------------------------------------------------------------
+// ===========================================================================
 // mapGraphListItemToWorkspaceProject
-// ---------------------------------------------------------------------------
+// ===========================================================================
 
 describe("mapGraphListItemToWorkspaceProject", () => {
   const config = makeTestConfig();
 
   it("maps a basic project with title and status", () => {
     const item = makeGraphListItem({
-      fields: {
-        Title: "Platform Redesign",
-        ProjectStatus: "Active",
-        ProjectCode: "PLATFORM-01",
-      },
+      Title: "Platform Redesign",
+      ProjectStatus: "Active",
+      ProjectCode: "PLATFORM-01",
     });
-
     const project = mapGraphListItemToWorkspaceProject({ workspaceConfig: config, item });
 
     expect(project.title).toBe("Platform Redesign");
@@ -309,14 +301,15 @@ describe("mapGraphListItemToWorkspaceProject", () => {
     expect(project.id).toContain("projects");
   });
 
-  it("defaults title to 'Untitled project' when missing", () => {
-    const item = makeGraphListItem({ fields: {} });
+  it("defaults title to 'Untitled project' when Title field is missing", () => {
+    const item = makeGraphListItem();
     const project = mapGraphListItemToWorkspaceProject({ workspaceConfig: config, item });
+
     expect(project.title).toBe("Untitled project");
   });
 
   it("normalizes project status values", () => {
-    const cases: [string, string][] = [
+    const cases: Array<[string, string]> = [
       ["active", "active"],
       ["blocked", "blocked"],
       ["Done", "complete"],
@@ -328,17 +321,15 @@ describe("mapGraphListItemToWorkspaceProject", () => {
     ];
 
     for (const [input, expected] of cases) {
-      const item = makeGraphListItem({ fields: { ProjectStatus: input } });
+      const item = makeGraphListItem({ ProjectStatus: input });
       const project = mapGraphListItemToWorkspaceProject({ workspaceConfig: config, item });
-      expect(project.status).toBe(expected);
+      expect(project.status, `status "${input}" -> "${expected}"`).toBe(expected);
     }
   });
 
-  it("maps owner from person field, falls back to createdBy", () => {
+  it("maps owner from person field", () => {
     const person = makePerson();
-    const item = makeGraphListItem({
-      fields: { ProjectOwner: person },
-    });
+    const item = makeGraphListItem({ ProjectOwner: person });
     const project = mapGraphListItemToWorkspaceProject({ workspaceConfig: config, item });
 
     expect(project.owner.displayName).toBe("Jane Smith");
@@ -346,7 +337,7 @@ describe("mapGraphListItemToWorkspaceProject", () => {
   });
 
   it("falls back to createdBy when no owner field", () => {
-    const item = makeGraphListItem({ fields: {} });
+    const item = makeGraphListItem();
     const project = mapGraphListItemToWorkspaceProject({ workspaceConfig: config, item });
 
     expect(project.owner.displayName).toBe("Ada Lovelace");
@@ -354,9 +345,7 @@ describe("mapGraphListItemToWorkspaceProject", () => {
 
   it("maps parent project reference from lookup field", () => {
     const item = makeGraphListItem({
-      fields: {
-        ParentProject: { LookupId: 3, LookupValue: "Parent Program" },
-      },
+      ParentProject: { LookupId: 3, LookupValue: "Parent Program" },
     });
     const project = mapGraphListItemToWorkspaceProject({ workspaceConfig: config, item });
 
@@ -366,10 +355,8 @@ describe("mapGraphListItemToWorkspaceProject", () => {
 
   it("maps date fields for projects", () => {
     const item = makeGraphListItem({
-      fields: {
-        StartDate: "2026-01-01",
-        TargetDate: "2026-06-30",
-      },
+      StartDate: "2026-01-01",
+      TargetDate: "2026-06-30",
     });
     const project = mapGraphListItemToWorkspaceProject({ workspaceConfig: config, item });
 
@@ -378,26 +365,12 @@ describe("mapGraphListItemToWorkspaceProject", () => {
   });
 });
 
-// ---------------------------------------------------------------------------
+// ===========================================================================
 // mapGraphListCommentToCommentRef
-// ---------------------------------------------------------------------------
+// ===========================================================================
 
 describe("mapGraphListCommentToCommentRef", () => {
   const config = makeTestConfig();
-
-  function makeGraphComment(overrides: Partial<GraphListItemComment> = {}): GraphListItemComment {
-    return {
-      id: "comment-001",
-      content: "This looks good to me.",
-      contentType: "text",
-      createdDateTime: "2026-03-01T09:00:00Z",
-      lastModifiedDateTime: "2026-03-01T09:00:00Z",
-      createdBy: {
-        user: { id: "user-003", displayName: "Alan Turing", email: "alan@example.com" },
-      },
-      ...overrides,
-    };
-  }
 
   it("maps a basic comment to CommentRef", () => {
     const comment = mapGraphListCommentToCommentRef({
@@ -493,22 +466,22 @@ describe("mapGraphListCommentToCommentRef", () => {
   });
 });
 
-// ---------------------------------------------------------------------------
+// ===========================================================================
 // attachCommentsToTasks
-// ---------------------------------------------------------------------------
+// ===========================================================================
 
 describe("attachCommentsToTasks", () => {
   it("attaches matching comments to tasks", () => {
     const tasks = [
-      { id: "task-1", commentIds: [], comments: [] } as any,
-      { id: "task-2", commentIds: [], comments: [] } as any,
-    ];
+      { id: "task-1", commentIds: [] as string[], comments: [] as unknown[] },
+      { id: "task-2", commentIds: [] as string[], comments: [] as unknown[] },
+    ] as any;
 
     const comments = [
-      { id: "c1", entityId: "task-1", body: "First" } as any,
-      { id: "c2", entityId: "task-1", body: "Second" } as any,
-      { id: "c3", entityId: "task-2", body: "Third" } as any,
-    ];
+      { id: "c1", entityId: "task-1", body: "First" },
+      { id: "c2", entityId: "task-1", body: "Second" },
+      { id: "c3", entityId: "task-2", body: "Third" },
+    ] as any;
 
     const result = attachCommentsToTasks(tasks, comments);
 
@@ -519,46 +492,47 @@ describe("attachCommentsToTasks", () => {
   });
 
   it("handles tasks with no comments", () => {
-    const tasks = [{ id: "task-1", commentIds: [], comments: [] } as any];
+    const tasks = [{ id: "task-1", commentIds: [] as string[], comments: [] as unknown[] }] as any;
     const result = attachCommentsToTasks(tasks, []);
+
     expect(result[0].comments).toEqual([]);
     expect(result[0].commentIds).toEqual([]);
   });
 
   it("handles empty tasks array", () => {
-    const result = attachCommentsToTasks([], [{ id: "c1", entityId: "task-1" } as any]);
+    const result = attachCommentsToTasks([], [{ id: "c1", entityId: "task-1" }] as any);
     expect(result).toEqual([]);
   });
 });
 
-// ---------------------------------------------------------------------------
+// ===========================================================================
 // applyProjectTaskAggregates
-// ---------------------------------------------------------------------------
+// ===========================================================================
 
 describe("applyProjectTaskAggregates", () => {
   it("counts tasks per project", () => {
     const projects = [
-      { id: "proj-1", taskIds: [], taskCount: 0, openTaskCount: 0 } as any,
-      { id: "proj-2", taskIds: [], taskCount: 0, openTaskCount: 0 } as any,
-    ];
+      { id: "proj-1", taskIds: [] as string[], taskCount: 0, openTaskCount: 0 },
+      { id: "proj-2", taskIds: [] as string[], taskCount: 0, openTaskCount: 0 },
+    ] as any;
 
     const tasks = [
-      { id: "t1", projectId: "proj-1", status: "in-progress" } as any,
-      { id: "t2", projectId: "proj-1", status: "done" } as any,
-      { id: "t3", projectId: "proj-2", status: "planned" } as any,
-    ];
+      { id: "t1", projectId: "proj-1", status: "in-progress" },
+      { id: "t2", projectId: "proj-1", status: "done" },
+      { id: "t3", projectId: "proj-2", status: "planned" },
+    ] as any;
 
     const result = applyProjectTaskAggregates(projects, tasks);
 
     expect(result[0].taskCount).toBe(2);
-    expect(result[0].openTaskCount).toBe(1); // only in-progress
+    expect(result[0].openTaskCount).toBe(1);
     expect(result[0].taskIds).toEqual(["t1", "t2"]);
     expect(result[1].taskCount).toBe(1);
     expect(result[1].openTaskCount).toBe(1);
   });
 
   it("handles project with no tasks", () => {
-    const projects = [{ id: "proj-1", taskIds: [], taskCount: 0, openTaskCount: 0 } as any];
+    const projects = [{ id: "proj-1", taskIds: [] as string[], taskCount: 0, openTaskCount: 0 }] as any;
     const result = applyProjectTaskAggregates(projects, []);
 
     expect(result[0].taskCount).toBe(0);
@@ -567,9 +541,9 @@ describe("applyProjectTaskAggregates", () => {
   });
 });
 
-// ---------------------------------------------------------------------------
+// ===========================================================================
 // collectPeopleFromGraphEntities
-// ---------------------------------------------------------------------------
+// ===========================================================================
 
 describe("collectPeopleFromGraphEntities", () => {
   it("collects unique people from projects, tasks, and comments", () => {
@@ -585,9 +559,9 @@ describe("collectPeopleFromGraphEntities", () => {
     const tasks = [
       {
         assignee: { id: "p3", displayName: "Assignee", email: "assignee@test.com" },
-        reporter: { id: "p1", displayName: "Owner", email: "owner@test.com" }, // duplicate
+        reporter: { id: "p1", displayName: "Owner", email: "owner@test.com" },
         createdBy: { id: "p4", displayName: "Creator", email: "creator@test.com" },
-        modifiedBy: { id: "p4", displayName: "Creator", email: "creator@test.com" }, // duplicate
+        modifiedBy: { id: "p4", displayName: "Creator", email: "creator@test.com" },
         watchers: [],
       },
     ] as any;
@@ -596,7 +570,7 @@ describe("collectPeopleFromGraphEntities", () => {
       {
         author: { id: "p5", displayName: "Commenter", email: "commenter@test.com" },
         mentions: [
-          { id: "p3", displayName: "Assignee", email: "assignee@test.com" }, // duplicate
+          { id: "p3", displayName: "Assignee", email: "assignee@test.com" },
         ],
       },
     ] as any;
@@ -609,18 +583,14 @@ describe("collectPeopleFromGraphEntities", () => {
   });
 
   it("handles empty entities", () => {
-    const people = collectPeopleFromGraphEntities({
-      projects: [],
-      tasks: [],
-      comments: [],
-    });
+    const people = collectPeopleFromGraphEntities({ projects: [], tasks: [], comments: [] });
     expect(people).toEqual([]);
   });
 });
 
-// ---------------------------------------------------------------------------
+// ===========================================================================
 // buildGraphBackedWorkspace
-// ---------------------------------------------------------------------------
+// ===========================================================================
 
 describe("buildGraphBackedWorkspace", () => {
   const config = makeTestConfig();
@@ -645,7 +615,7 @@ describe("buildGraphBackedWorkspace", () => {
   it("computes summary with task counts", () => {
     const workspace = buildGraphBackedWorkspace({
       workspaceConfig: config,
-      projects: [{ id: "p1" } as any],
+      projects: [{ id: "p1" }] as any,
       tasks: [
         { id: "t1", status: "in-progress" } as any,
         { id: "t2", status: "done" } as any,
@@ -655,7 +625,7 @@ describe("buildGraphBackedWorkspace", () => {
 
     expect(workspace.summary.taskCount).toBe(3);
     expect(workspace.summary.projectCount).toBe(1);
-    expect(workspace.summary.openTaskCount).toBe(2); // in-progress + backlog
+    expect(workspace.summary.openTaskCount).toBe(2);
   });
 
   it("sets source refs for tasks and projects lists", () => {
