@@ -6,6 +6,7 @@ export interface TaskFilters {
   status: TaskStatus[];
   assigneeId: string[];
   projectId: string[];
+  searchQuery: string;
 }
 
 export interface FilterChipData {
@@ -26,4 +27,5 @@ export const DEFAULT_FILTERS: TaskFilters = {
   status: [],
   assigneeId: [],
   projectId: [],
+  searchQuery: "",
 };

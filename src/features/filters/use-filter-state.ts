@@ -31,12 +31,19 @@ export function useFilterState() {
     }));
   }, []);
 
+  const setSearchQuery = useCallback((query: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      searchQuery: query,
+    }));
+  }, []);
+
   const clearFilters = useCallback(() => {
     setFilters(DEFAULT_FILTERS);
   }, []);
 
   const hasActiveFilters = useMemo(
-    () => filters.status.length > 0 || filters.assigneeId.length > 0 || filters.projectId.length > 0,
+    () => filters.status.length > 0 || filters.assigneeId.length > 0 || filters.projectId.length > 0 || filters.searchQuery.length > 0,
     [filters]
   );
 
@@ -45,6 +52,7 @@ export function useFilterState() {
     toggleStatusFilter,
     toggleAssigneeFilter,
     toggleProjectFilter,
+    setSearchQuery,
     clearFilters,
     hasActiveFilters,
   };

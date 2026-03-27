@@ -8,6 +8,7 @@ import { coreOpsWorkspaceFixture } from "@/features/workspaces/fixtures";
 import type { PiperWorkspace } from "@/lib/domain/workspace";
 import type {
   CreateCommentInput,
+  CreateTaskInput,
   PiperRepository,
   TaskUpdateInput,
   WorkspaceProjectQuery,
@@ -178,6 +179,71 @@ export class MockPiperRepository implements PiperRepository {
     });
     recomputeWorkspaceSummary();
     return cloneTask(hydrateTask(task));
+  }
+
+  async createTask(input: CreateTaskInput) {
+    const newTaskId = `task-local-${mutableTasks.length + 1}`;
+    const now = new Date().toISOString();
+    const project = mutableProjects.find((p) => p.id === input.projectId);
+
+    const newTask: WorkspaceTask = {
+      id: newTaskId,
+      externalId: `TASK-${300 + mutableTasks.length + 1}`,
+      workspaceId: input.workspaceId,
+      title: input.title,
+      status: input.status ?? "backlog",
+      priority: input.priority ?? "medium",
+      description: "",
+      assignee: input.assigneeId ? peopleById.get(input.assigneeId) : undefined,
+      reporter: undefined,
+      watchers: [],
+      projectId: input.projectId,
+      projectCode: project?.projectCode,
+      parentTaskId: undefined,
+      path: [input.title],
+      labels: input.labels ?? [],
+      startDate: input.startDate,
+      dueDate: input.dueDate,
+      completedAt: undefined,
+      estimatePoints: undefined,
+      remainingPoints: undefined,
+      sortOrder: mutableTasks.length * 10 + 10,
+      checklist: [],
+      attachments: [],
+      commentIds: [],
+      comments: [],
+      createdAt: now,
+      updatedAt: now,
+      createdBy: {
+        id: "person-zephyr",
+        externalId: "u-101",
+        displayName: "Zephyr",
+        email: "zephyr@piper.local",
+        jobTitle: "Engineering Lead",
+        department: "Platform",
+        avatarUrl: "https://api.dicebear.com/9.x/initials/svg?seed=Zephyr",
+        presence: "busy",
+      },
+      modifiedBy: {
+        id: "person-zephyr",
+        externalId: "u-101",
+        displayName: "Zephyr",
+        email: "zephyr@piper.local",
+        jobTitle: "Engineering Lead",
+        department: "Platform",
+        avatarUrl: "https://api.dicebear.com/9.x/initials/svg?seed=Zephyr",
+        presence: "busy",
+      },
+    };
+
+    mutableTasks.push(newTask);
+    if (project) {
+      project.taskIds = [...project.taskIds, newTaskId];
+      project.taskCount += 1;
+      project.openTaskCount += 1;
+    }
+    recomputeWorkspaceSummary();
+    return cloneTask(hydrateTask(newTask));
   }
 
   async createComment(input: CreateCommentInput) {

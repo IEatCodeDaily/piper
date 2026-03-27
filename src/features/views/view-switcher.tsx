@@ -38,6 +38,16 @@ function applyFilters(tasks: WorkspaceTask[], filters: TaskFilters | undefined):
       return false;
     }
 
+    // Search filter (matches title and description)
+    if (filters.searchQuery.length > 0) {
+      const query = filters.searchQuery.toLowerCase();
+      const titleMatch = task.title.toLowerCase().includes(query);
+      const descriptionMatch = task.description?.toLowerCase().includes(query) ?? false;
+      if (!titleMatch && !descriptionMatch) {
+        return false;
+      }
+    }
+
     return true;
   });
 }
