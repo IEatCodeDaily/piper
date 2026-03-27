@@ -9,8 +9,8 @@
 
 | ID | Feature | Priority | Status | Notes |
 |----|---------|----------|--------|-------|
-| WS1 | Load workspace config from JSON | P0 | Planned | |
-| WS2 | Stable IDs + human-readable labels in config | P0 | Planned | |
+| WS1 | Load workspace config from JSON | P0 | In Progress | Phase 1 schema, loader helpers, and sample fixture added |
+| WS2 | Stable IDs + human-readable labels in config | P0 | In Progress | Contract now requires stable tenant/site/list IDs plus labels |
 | WS3 | Portable mode config beside executable | P0 | Planned | |
 | WS4 | Installed mode with multiple workspaces | P1 | Planned | |
 | WS5 | Config import/export as JSON | P1 | Planned | |
@@ -22,8 +22,8 @@
 
 | ID | Feature | Priority | Status | Notes |
 |----|---------|----------|--------|-------|
-| MP1 | Semantic field mapping for tasks/projects | P0 | Planned | |
-| MP2 | Configurable per-field renderers | P0 | Planned | |
+| MP1 | Semantic field mapping for tasks/projects | P0 | In Progress | Phase 1 config contract defines separate task/project semantic mappings |
+| MP2 | Configurable per-field renderers | P0 | In Progress | Renderer mapping contract defined per semantic field |
 | MP3 | Person/choice/date/markdown/lookup renderers | P0 | Planned | |
 | MP4 | Configurable colors for status/choice fields | P1 | Planned | |
 | MP5 | View-specific field visibility/grouping | P1 | Planned | |
@@ -64,6 +64,6 @@
 | ID | Feature | Priority | Status | Notes |
 |----|---------|----------|--------|-------|
 | SF1 | Filter by any configured field | P0 | Planned | |
-| SF2 | Saved/shared views | P0 | Planned | |
+| SF2 | Saved/shared views | P0 | In Progress | View preset contract added to workspace schema |
 | SF3 | Search by title/metadata | P0 | Planned | |
 | SF4 | Full-text search | P2 | Planned | deferred |

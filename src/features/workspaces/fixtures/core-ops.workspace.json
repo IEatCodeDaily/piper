@@ -1,0 +1,302 @@
+{
+  "version": 1,
+  "workspace": {
+    "id": "core-ops",
+    "label": "Core Operations",
+    "description": "Sample Piper workspace for a single tenant with separate project and task lists.",
+    "tenant": {
+      "id": "44f7d4ea-41d9-4c68-a16b-5f4f4f68b010",
+      "label": "Northwind Engineering",
+      "domain": "northwind.example.com"
+    }
+  },
+  "lists": {
+    "projects": {
+      "site": {
+        "id": "northwind.sharepoint.com,62e1b9d1-2302-4f8f-a9c8-68dbfd8d4e51,ab4d1280-13c8-46fd-86aa-cf4f09693c33",
+        "label": "Operations PMO",
+        "webUrl": "https://northwind.sharepoint.com/sites/operations-pmo"
+      },
+      "list": {
+        "id": "b6216d8e-7f62-4db6-b9f3-9105c74f4a90",
+        "label": "Projects"
+      },
+      "fields": {
+        "id": {
+          "sourceField": "ID",
+          "dataType": "number",
+          "required": true,
+          "editable": false,
+          "description": "SharePoint item ID used as the durable external identifier."
+        },
+        "projectCode": {
+          "sourceField": "ProjectCode",
+          "dataType": "string",
+          "required": true,
+          "description": "Short stable project code shown across views."
+        },
+        "title": {
+          "sourceField": "Title",
+          "dataType": "string",
+          "required": true
+        },
+        "status": {
+          "sourceField": "ProjectStatus",
+          "dataType": "choice",
+          "required": true
+        },
+        "owner": {
+          "sourceField": "ProjectOwner",
+          "dataType": "person"
+        },
+        "startDate": {
+          "sourceField": "StartDate",
+          "dataType": "date"
+        },
+        "dueDate": {
+          "sourceField": "TargetDate",
+          "dataType": "date"
+        },
+        "description": {
+          "sourceField": "ProjectSummary",
+          "dataType": "markdown"
+        },
+        "parentProjectRef": {
+          "sourceField": "ParentProject",
+          "dataType": "lookup"
+        }
+      },
+      "renderers": {
+        "projectCode": {
+          "kind": "text",
+          "label": "Code"
+        },
+        "title": {
+          "kind": "text"
+        },
+        "status": {
+          "kind": "choice-pill",
+          "options": {
+            "palette": {
+              "Proposed": "slate",
+              "Active": "blue",
+              "Blocked": "red",
+              "Done": "green"
+            }
+          }
+        },
+        "owner": {
+          "kind": "person"
+        },
+        "startDate": {
+          "kind": "date"
+        },
+        "dueDate": {
+          "kind": "date"
+        },
+        "description": {
+          "kind": "markdown"
+        },
+        "parentProjectRef": {
+          "kind": "lookup",
+          "label": "Parent project"
+        }
+      },
+      "relations": {
+        "hierarchy": {
+          "enabled": true,
+          "field": "parentProjectRef",
+          "description": "Projects can roll up into parent programs and portfolios."
+        }
+      }
+    },
+    "tasks": {
+      "site": {
+        "id": "northwind.sharepoint.com,62e1b9d1-2302-4f8f-a9c8-68dbfd8d4e51,ab4d1280-13c8-46fd-86aa-cf4f09693c33",
+        "label": "Operations PMO",
+        "webUrl": "https://northwind.sharepoint.com/sites/operations-pmo"
+      },
+      "list": {
+        "id": "0ddc1e67-c84d-4d8a-8f06-e7e0b4842c42",
+        "label": "Tasks"
+      },
+      "fields": {
+        "id": {
+          "sourceField": "ID",
+          "dataType": "number",
+          "required": true,
+          "editable": false
+        },
+        "title": {
+          "sourceField": "Title",
+          "dataType": "string",
+          "required": true
+        },
+        "status": {
+          "sourceField": "TaskStatus",
+          "dataType": "choice",
+          "required": true
+        },
+        "priority": {
+          "sourceField": "Priority",
+          "dataType": "choice"
+        },
+        "assignee": {
+          "sourceField": "AssignedTo",
+          "dataType": "person"
+        },
+        "description": {
+          "sourceField": "TaskDetails",
+          "dataType": "markdown"
+        },
+        "projectRef": {
+          "sourceField": "Project",
+          "dataType": "lookup",
+          "required": true,
+          "description": "Lookup back to the Projects list."
+        },
+        "parentTaskRef": {
+          "sourceField": "ParentTask",
+          "dataType": "lookup",
+          "description": "Available in source schema but disabled in Piper by default."
+        },
+        "dependsOnRefs": {
+          "sourceField": "Predecessors",
+          "dataType": "lookup-multi",
+          "description": "Optional dependency mapping for timeline and planning views."
+        },
+        "startDate": {
+          "sourceField": "StartDate",
+          "dataType": "date"
+        },
+        "dueDate": {
+          "sourceField": "DueDate",
+          "dataType": "date"
+        },
+        "labels": {
+          "sourceField": "Tags",
+          "dataType": "labels"
+        }
+      },
+      "renderers": {
+        "title": {
+          "kind": "text"
+        },
+        "status": {
+          "kind": "choice-pill",
+          "options": {
+            "palette": {
+              "Not Started": "slate",
+              "In Progress": "blue",
+              "Blocked": "red",
+              "Done": "green"
+            }
+          }
+        },
+        "priority": {
+          "kind": "choice-pill"
+        },
+        "assignee": {
+          "kind": "person"
+        },
+        "description": {
+          "kind": "markdown"
+        },
+        "projectRef": {
+          "kind": "lookup",
+          "label": "Project"
+        },
+        "parentTaskRef": {
+          "kind": "lookup",
+          "label": "Parent task"
+        },
+        "dependsOnRefs": {
+          "kind": "lookup",
+          "label": "Depends on"
+        },
+        "startDate": {
+          "kind": "date"
+        },
+        "dueDate": {
+          "kind": "date"
+        },
+        "labels": {
+          "kind": "labels"
+        }
+      },
+      "relations": {
+        "project": {
+          "enabled": true,
+          "field": "projectRef",
+          "description": "Every task belongs to a project entry in the Projects list."
+        },
+        "parent": {
+          "enabled": false,
+          "field": "parentTaskRef",
+          "description": "Task hierarchy is optional and disabled by default."
+        },
+        "dependencies": {
+          "enabled": false,
+          "field": "dependsOnRefs",
+          "description": "Dependency chains are optional and can be enabled later."
+        }
+      }
+    }
+  },
+  "views": [
+    {
+      "id": "projects-program-board",
+      "label": "Programs Board",
+      "description": "Default project board grouped by status.",
+      "scope": "projects",
+      "kind": "board",
+      "isDefault": true,
+      "visibleFields": ["projectCode", "title", "owner", "status", "dueDate", "parentProjectRef"],
+      "groupBy": "status",
+      "sort": [
+        {
+          "field": "dueDate",
+          "direction": "asc"
+        }
+      ]
+    },
+    {
+      "id": "tasks-team-backlog",
+      "label": "Team Backlog",
+      "description": "Default task list sorted by due date for day-to-day execution.",
+      "scope": "tasks",
+      "kind": "list",
+      "isDefault": true,
+      "visibleFields": ["title", "status", "priority", "assignee", "projectRef", "dueDate", "labels"],
+      "filters": [
+        {
+          "field": "status",
+          "operator": "notIn",
+          "value": ["Done"]
+        }
+      ],
+      "sort": [
+        {
+          "field": "dueDate",
+          "direction": "asc"
+        }
+      ]
+    },
+    {
+      "id": "tasks-delivery-timeline",
+      "label": "Delivery Timeline",
+      "description": "Timeline preset for schedule planning across projects.",
+      "scope": "tasks",
+      "kind": "timeline",
+      "visibleFields": ["title", "projectRef", "status", "startDate", "dueDate", "dependsOnRefs"],
+      "dateField": "dueDate",
+      "groupBy": "projectRef",
+      "sort": [
+        {
+          "field": "startDate",
+          "direction": "asc"
+        }
+      ]
+    }
+  ]
+}

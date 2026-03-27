@@ -89,6 +89,20 @@ Responsibilities:
 - register available workspaces in app
 - support portable and installed modes
 
+Current phase 1 contract lives in:
+- `docs/specs/workspace-config.md`
+- `src/features/workspaces/schema.ts`
+- `src/features/workspaces/loaders.ts`
+- `src/features/workspaces/fixtures/core-ops.workspace.json`
+
+The contract is intentionally centered on a few durable concepts:
+- stable workspace, tenant, site, and list identifiers with human-readable labels
+- separate project and task list definitions
+- semantic field mappings per list
+- per-field renderer mappings
+- saved view presets
+- optional hierarchy, parent-task, and dependency mappings
+
 ### Graph Adapter
 Responsibilities:
 - fetch list metadata/schema
