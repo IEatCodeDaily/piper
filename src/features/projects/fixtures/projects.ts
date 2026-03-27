@@ -4,7 +4,7 @@ export const projectFixtures: WorkspaceProject[] = [
   {
     id: "project-core-shell",
     externalId: "PROJ-1001",
-    workspaceId: "workspace-core-ops",
+    workspaceId: "core-ops",
     projectCode: "CORE",
     title: "Piper shell foundation",
     description:
@@ -76,7 +76,7 @@ export const projectFixtures: WorkspaceProject[] = [
   {
     id: "project-workspace-bootstrap",
     externalId: "PROJ-1002",
-    workspaceId: "workspace-core-ops",
+    workspaceId: "core-ops",
     projectCode: "BOOT",
     title: "Workspace bootstrap and config loading",
     description:

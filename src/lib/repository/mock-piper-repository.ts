@@ -4,63 +4,38 @@ import { projectFixtures } from "@/features/projects/fixtures/projects";
 import type { WorkspaceProject } from "@/features/projects/types";
 import { taskFixtures } from "@/features/tasks/fixtures/tasks";
 import type { WorkspaceTask } from "@/features/tasks/types";
+import { coreOpsWorkspaceFixture } from "@/features/workspaces/fixtures";
 import type { PiperWorkspace } from "@/lib/domain/workspace";
 import type { PiperRepository, WorkspaceProjectQuery, WorkspaceTaskQuery } from "@/lib/repository/piper-repository";
 
 const mockWorkspace: PiperWorkspace = {
-  id: "workspace-core-ops",
-  slug: "core-ops",
-  name: "Core Ops",
-  description:
-    "Shared workspace for Piper foundation work, combining shell delivery, workspace bootstrap planning, and Graph adapter discovery.",
-  tenantName: "Piper Design Lab",
+  id: coreOpsWorkspaceFixture.workspace.id,
+  slug: coreOpsWorkspaceFixture.workspace.id,
+  name: coreOpsWorkspaceFixture.workspace.label,
+  description: coreOpsWorkspaceFixture.workspace.description ?? "Shared workspace for Piper foundation work.",
+  tenantName: coreOpsWorkspaceFixture.workspace.tenant.label,
   mode: "mock",
   sourceRefs: [
     {
-      siteId: "site-core-ops",
-      webId: "web-core-ops",
-      listId: "list-tasks-core-ops",
-      label: "Core Ops Tasks",
+      siteId: coreOpsWorkspaceFixture.lists.tasks.site.id,
+      listId: coreOpsWorkspaceFixture.lists.tasks.list.id,
+      label: coreOpsWorkspaceFixture.lists.tasks.list.label,
       entityType: "task",
     },
     {
-      siteId: "site-core-ops",
-      webId: "web-core-ops",
-      listId: "list-projects-core-ops",
-      label: "Core Ops Projects",
+      siteId: coreOpsWorkspaceFixture.lists.projects.site.id,
+      listId: coreOpsWorkspaceFixture.lists.projects.list.id,
+      label: coreOpsWorkspaceFixture.lists.projects.list.label,
       entityType: "project",
     },
-    {
-      siteId: "site-core-ops",
-      webId: "web-core-ops",
-      listId: "list-comments-core-ops",
-      label: "Core Ops Comments",
-      entityType: "comment",
-    },
   ],
-  presets: [
-    {
-      id: "preset-workspace-list",
-      name: "Workspace",
-      kind: "list",
-      description: "Default task list with recent work and active planning focus.",
-      default: true,
-    },
-    {
-      id: "preset-kanban",
-      name: "Kanban",
-      kind: "kanban",
-      description: "Status-organized planning board for daily execution.",
-      default: false,
-    },
-    {
-      id: "preset-gantt",
-      name: "Timeline",
-      kind: "gantt",
-      description: "Project and task timeline view for delivery planning.",
-      default: false,
-    },
-  ],
+  presets: coreOpsWorkspaceFixture.views.map((view) => ({
+    id: view.id,
+    name: view.label,
+    kind: view.kind,
+    description: view.description,
+    default: view.isDefault,
+  })),
   summary: {
     taskCount: taskFixtures.length,
     projectCount: projectFixtures.length,

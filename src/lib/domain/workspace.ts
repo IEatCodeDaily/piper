@@ -9,7 +9,7 @@ export interface WorkspaceSourceRef {
 export interface WorkspaceViewPreset {
   id: string;
   name: string;
-  kind: "list" | "kanban" | "gantt" | "detail" | "my-tasks";
+  kind: "list" | "board" | "timeline" | "detail" | "my-tasks";
   description?: string;
   default: boolean;
 }

@@ -4,7 +4,7 @@ export const taskFixtures: WorkspaceTask[] = [
   {
     id: "task-schema",
     externalId: "TASK-301",
-    workspaceId: "workspace-core-ops",
+    workspaceId: "core-ops",
     title: "Define semantic workspace entity model",
     status: "in-progress",
     priority: "high",
@@ -102,7 +102,7 @@ export const taskFixtures: WorkspaceTask[] = [
   {
     id: "task-query-layer",
     externalId: "TASK-302",
-    workspaceId: "workspace-core-ops",
+    workspaceId: "core-ops",
     title: "Add TanStack Query repository hooks",
     status: "planned",
     priority: "high",
@@ -181,7 +181,7 @@ export const taskFixtures: WorkspaceTask[] = [
   {
     id: "task-gantt-spike",
     externalId: "TASK-303",
-    workspaceId: "workspace-core-ops",
+    workspaceId: "core-ops",
     title: "Evaluate Gantt provider for hierarchy scale",
     status: "blocked",
     priority: "medium",
@@ -248,7 +248,7 @@ export const taskFixtures: WorkspaceTask[] = [
   {
     id: "task-bootstrap-loader",
     externalId: "TASK-304",
-    workspaceId: "workspace-core-ops",
+    workspaceId: "core-ops",
     title: "Sketch workspace loader contract",
     status: "backlog",
     priority: "medium",
