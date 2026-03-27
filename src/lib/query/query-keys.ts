@@ -3,6 +3,7 @@ import type { WorkspaceProjectQuery, WorkspaceTaskQuery } from "@/lib/repository
 export const queryKeys = {
   workspaces: {
     all: ["workspaces"] as const,
+    list: () => [...queryKeys.workspaces.all, "list"] as const,
     active: () => [...queryKeys.workspaces.all, "active"] as const,
     people: (workspaceId: string) => [...queryKeys.workspaces.all, workspaceId, "people"] as const,
   },

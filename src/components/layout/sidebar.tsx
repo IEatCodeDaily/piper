@@ -8,13 +8,27 @@ import { cn } from "@/lib/utils";
 
 type SidebarProps = {
   workspaces: WorkspaceOption[];
+  activeWorkspaceId: string | null;
+  onSelectWorkspace: (workspaceId: string) => void;
   navigationItems: NavigationItem[];
+  activeNavigationId: string;
+  onSelectNavigation: (itemId: string) => void;
   footer?: ReactNode;
   utilitySlot?: ReactNode;
   className?: string;
 };
 
-export function Sidebar({ workspaces, navigationItems, footer, utilitySlot, className }: SidebarProps) {
+export function Sidebar({
+  workspaces,
+  activeWorkspaceId,
+  onSelectWorkspace,
+  navigationItems,
+  activeNavigationId,
+  onSelectNavigation,
+  footer,
+  utilitySlot,
+  className,
+}: SidebarProps) {
   return (
     <aside className={cn("flex min-h-screen flex-col bg-[var(--surface-container-low)] px-5 py-5", className)}>
       <div className="flex items-center justify-between gap-3">
@@ -32,8 +46,13 @@ export function Sidebar({ workspaces, navigationItems, footer, utilitySlot, clas
         </Button>
       </div>
 
-      <WorkspaceSwitcher workspaces={workspaces} className="mt-8" />
-      <Navigation items={navigationItems} className="mt-8" />
+      <WorkspaceSwitcher
+        workspaces={workspaces}
+        activeWorkspaceId={activeWorkspaceId}
+        onSelectWorkspace={onSelectWorkspace}
+        className="mt-8"
+      />
+      <Navigation items={navigationItems} activeItemId={activeNavigationId} onSelect={onSelectNavigation} className="mt-8" />
       {utilitySlot ? <div className="mt-8">{utilitySlot}</div> : null}
       <div className="mt-auto pt-8">{footer}</div>
     </aside>

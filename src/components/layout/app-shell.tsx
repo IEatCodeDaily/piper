@@ -28,9 +28,16 @@ export function AppShell({
         {sidebar}
         <main className={cn("bg-[var(--surface)] px-6 py-5", contentClassName)}>
           {topbar}
-          <div className={cn("mt-10 grid gap-4", rightRail ? "2xl:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.85fr)]" : "grid-cols-1", viewClassName)}>
+          <div
+            className={cn(
+              "mt-10 grid gap-4",
+              rightRail ? "2xl:grid-cols-[minmax(0,1.5fr)_minmax(360px,0.82fr)]" : "grid-cols-1",
+              viewClassName,
+            )}
+          >
             <div className="min-w-0">{children}</div>
-            {rightRail ? <aside className={cn("space-y-4", rightRailClassName)}>{rightRail}</aside> : null}</div>
+            {rightRail ? <aside className={cn("min-w-0 space-y-4", rightRailClassName)}>{rightRail}</aside> : null}
+          </div>
         </main>
       </div>
     </div>
