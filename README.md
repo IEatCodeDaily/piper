@@ -9,9 +9,25 @@ Goals:
 - Direct delegated Microsoft login via user account
 - Immediate sync back to SharePoint Lists
 
-## Initial direction
-- Desktop shell: Tauri
-- Frontend: React + TypeScript + shadcn/ui
-- Data source: Microsoft Graph / SharePoint Lists
-- Config: shared JSON workspace files
+## Stack
+- Tauri v2
+- React + TypeScript + Vite
+- shadcn/ui-friendly component foundation
+- Tailwind CSS v4
+- Microsoft Graph / SharePoint Lists integration (planned)
 
+## Development
+```bash
+cd ~/repo/piper
+bun install
+bun run dev
+```
+
+## Documentation
+- `AGENTS.md`
+- `docs/BRD.md`
+- `docs/ARCHITECTURE.md`
+- `docs/DEVELOPMENT.md`
+- `docs/TESTING.md`
+- `docs/DESIGN.md`
+- `docs/specs/FEATURE_MAP.md`

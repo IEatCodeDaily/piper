@@ -25,8 +25,10 @@ bun run dev
 
 | Command | Description |
 |---------|-------------|
-| `bun run dev` | Start frontend/Tauri development workflow |
-| `bun run build` | Production build |
+| `bun run dev` | Start Tauri desktop development workflow |
+| `bun run dev:web` | Start Vite frontend only on port 1420 |
+| `bun run build` | Build the Tauri desktop app |
+| `bun run build:web` | Build the frontend bundle only |
 | `bun run lint` | Lint check |
 | `bun run typecheck` | TypeScript typecheck |
 | `bun run test` | Test suite |

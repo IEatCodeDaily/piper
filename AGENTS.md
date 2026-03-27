@@ -25,6 +25,7 @@ Piper is a configurable desktop task and project management app built on top of 
 - **Ecosystem**: `docs/ECOSYSTEM_MAP.md` for external systems and dependencies.
 - **Feature Inventory**: `docs/specs/FEATURE_MAP.md` for tracked features.
 - **UX Design**: `docs/ux/` for wireframes and user flows.
+- **Design System**: `docs/DESIGN.md` for Piper visual language and interaction styling.
 
 ### 3. Test-Driven Development (TDD) — MANDATORY
 

@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+:root {
+  --surface: #f7f9fb;
+  --surface-container-low: #f2f4f6;
+  --surface-container-lowest: #ffffff;
+  --surface-container-high: #eaedf0;
+  --surface-container-highest: #e0e3e5;
+  --surface-bright: #eef4fb;
+  --primary: #0f1722;
+  --primary-container: #111c2d;
+  --on-surface: #1b2430;
+  --on-surface-variant: #637083;
+  --outline-ghost: rgba(99, 112, 131, 0.15);
+  --status-info: #008cc7;
+  --status-warning: #ba6a00;
+  --status-neutral: #6b7280;
+  --font-display: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+@theme inline {
+  --color-background: var(--surface);
+  --color-foreground: var(--on-surface);
+  --font-sans: var(--font-body);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+html {
+  background: var(--surface);
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--on-surface);
+  background:
+    radial-gradient(circle at top left, rgba(238, 244, 251, 0.8), transparent 32%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0)),
+    var(--surface);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.surface-card {
+  background: var(--surface-container-lowest);
+  box-shadow: 0 12px 32px rgba(25, 28, 30, 0.06);
+}
+
+.glass-panel {
+  background: color-mix(in srgb, var(--surface-container-low) 80%, white 20%);
+  backdrop-filter: blur(12px);
+}
