@@ -13,7 +13,7 @@ type PiperRuntimeBoundaryProps = {
 export function PiperRuntimeBoundary({ children }: PiperRuntimeBoundaryProps) {
   const { repositoryMode } = useRuntimeSettings();
   const { workspaces } = useWorkspaceCatalog();
-  const { initialize, getAccessToken } = useAuthStore();
+  const { initialize, getAccessToken, status } = useAuthStore();
 
   const workspaceSignature = useMemo(
     () => JSON.stringify(workspaces.map((workspace) => workspace.workspace.id).sort()),
@@ -28,12 +28,12 @@ export function PiperRuntimeBoundary({ children }: PiperRuntimeBoundaryProps) {
     const repository = createRuntimeRepository({
       mode: repositoryMode,
       workspaceConfigs: workspaces,
-      accessTokenProvider: repositoryMode === "graph-live" ? getAccessToken : undefined,
+      accessTokenProvider: repositoryMode === "graph-live" && status === "signed-in" ? getAccessToken : undefined,
     });
 
     setPiperRepository(repository);
     void queryClient.invalidateQueries();
-  }, [getAccessToken, repositoryMode, workspaceSignature, workspaces]);
+  }, [getAccessToken, repositoryMode, status, workspaceSignature, workspaces]);
 
   return children;
 }

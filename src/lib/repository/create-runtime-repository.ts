@@ -12,11 +12,11 @@ export function createRuntimeRepository(args: {
 }): PiperRepository {
   const { mode, workspaceConfigs, accessTokenProvider } = args;
 
-  if (mode == "mock") {
+  if (mode === "mock") {
     return mockPiperRepository;
   }
 
-  if (mode == "graph-mock") {
+  if (mode === "graph-mock" || !accessTokenProvider) {
     return new PlaceholderGraphRepository({
       workspaceConfigs,
       graphClient: mockGraphClient,

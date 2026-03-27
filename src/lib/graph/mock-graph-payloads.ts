@@ -3,10 +3,12 @@ import { projectFixtures } from "@/features/projects/fixtures/projects"
 import { taskFixtures } from "@/features/tasks/fixtures/tasks"
 import { coreOpsWorkspaceFixture } from "@/features/workspaces/fixtures"
 import type {
+  GraphColumnDataType,
   GraphCollectionResponse,
   GraphFieldLookupValue,
   GraphFieldPersonValue,
   GraphIdentitySet,
+  GraphListColumnDefinition,
   GraphListItem,
   GraphListItemComment,
 } from "@/lib/graph/types"
@@ -258,3 +260,60 @@ export const mockGraphDisplayNames = {
   workspace: coreOpsWorkspaceFixture.workspace.label,
   workspaceSlug: slugify(coreOpsWorkspaceFixture.workspace.label),
 } as const
+
+
+function toColumnDataType(dataType: string): GraphColumnDataType {
+  switch (dataType) {
+    case "string":
+      return "text"
+    case "text":
+    case "markdown":
+      return "note"
+    case "number":
+      return "number"
+    case "boolean":
+      return "boolean"
+    case "date":
+    case "datetime":
+      return "dateTime"
+    case "person":
+      return "person"
+    case "person-multi":
+      return "personMulti"
+    case "choice":
+      return "choice"
+    case "choice-multi":
+    case "labels":
+      return "choiceMulti"
+    case "lookup":
+      return "lookup"
+    case "lookup-multi":
+      return "lookupMulti"
+    case "url":
+      return "url"
+    default:
+      return "unknown"
+  }
+}
+
+function buildColumns(fields: Record<string, { sourceField: string; dataType: string; required?: boolean; editable?: boolean }>): GraphListColumnDefinition[] {
+  return Object.entries(fields).map(([semanticField, field], index) => ({
+    id: `${field.sourceField}-${index + 1}`,
+    name: field.sourceField,
+    displayName: semanticField,
+    dataType: toColumnDataType(field.dataType),
+    required: field.required ?? false,
+    readOnly: field.editable === false,
+    multiValue: field.dataType.endsWith("-multi") || field.dataType === "labels",
+    hidden: false,
+  }))
+}
+
+export const mockGraphListColumnsByScope = {
+  projects: buildColumns(coreOpsWorkspaceFixture.lists.projects.fields),
+  tasks: buildColumns(coreOpsWorkspaceFixture.lists.tasks.fields),
+} as const
+
+export function cloneGraphListColumn(column: GraphListColumnDefinition): GraphListColumnDefinition {
+  return { ...column }
+}

@@ -60,3 +60,13 @@ export function buildGraphListCommentsUrl(
 ) {
   return `${baseUrl}/sites/${encodeURIComponent(options.siteId)}/lists/${encodeURIComponent(options.listId)}/items/${encodeURIComponent(options.itemId)}/comments`
 }
+
+export function buildGraphListColumnsUrl(
+  baseUrl: string,
+  options: {
+    siteId: string
+    listId: string
+  },
+) {
+  return `${baseUrl}/sites/${encodeURIComponent(options.siteId)}/lists/${encodeURIComponent(options.listId)}/columns`
+}
