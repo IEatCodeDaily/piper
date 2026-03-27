@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { X, Loader2 } from "lucide-react";
 import type { WorkspaceProject } from "@/features/projects/types";
 import type { PersonRef } from "@/features/people/types";
@@ -6,7 +6,6 @@ import type { WorkspaceTask } from "@/features/tasks/types";
 import { Button } from "@/components/ui/button";
 import { SurfaceCard } from "@/components/layout/surface-card";
 import { useCreateTask } from "./use-create-task";
-import { cn } from "@/lib/utils";
 
 const STATUS_OPTIONS: { value: WorkspaceTask["status"]; label: string }[] = [
   { value: "backlog", label: "Backlog" },
@@ -55,10 +54,13 @@ export function CreateTaskModal({
     setAssigneeId("");
   }, []);
 
+  // Reset form when modal opens (setState in effect is intentional here)
+  const prevOpenRef = useRef(false);
   useEffect(() => {
-    if (!isOpen) {
-      resetForm();
+    if (!prevOpenRef.current && isOpen) {
+      resetForm(); // eslint-disable-line react-hooks/set-state-in-effect -- reset form on modal open
     }
+    prevOpenRef.current = isOpen;
   }, [isOpen, resetForm]);
 
   useEffect(() => {

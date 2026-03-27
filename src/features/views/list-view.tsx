@@ -189,7 +189,7 @@ export function ListView({ tasks, projects, selectedTaskId, onSelectTask }: List
     [projectNames, updateTask]
   );
 
-  const table = useReactTable({
+      const table = useReactTable({
     data: tasks,
     columns,
     state: {

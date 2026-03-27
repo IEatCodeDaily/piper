@@ -9,7 +9,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { SurfaceCard } from "@/components/layout/surface-card";
 import { Topbar } from "@/components/layout/topbar";
 import { Button } from "@/components/ui/button";
-import { CreateTaskModal } from "@/features/create/create-task-modal";
+// CreateTaskModal rendered in sidebar, unused here
 import { TaskDetailPanel } from "@/features/details/task-detail-panel";
 import { useSelectionStore } from "@/features/selection/state/use-selection-store";
 import { useWorkspaceProjects } from "@/features/projects/hooks/use-workspace-projects";
@@ -23,7 +23,7 @@ import { ViewSwitcher } from "@/features/views/view-switcher";
 import type { WorkspaceViewId } from "@/features/views/types";
 import { useRuntimeSettings } from "@/lib/runtime/runtime-settings";
 import { FilterBar, useFilterState } from "@/features/filters";
-import { useWorkspacePeople } from "@/features/people/hooks/use-workspace-people";
+// useWorkspacePeople available for future person picker
 import { useSearch, useDebounce } from "@/features/search";
 
 const currentUser = {

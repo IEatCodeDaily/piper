@@ -240,11 +240,7 @@ export class PlaceholderGraphRepository implements PiperRepository {
   }
 
   async createTask(input: CreateTaskInput): Promise<WorkspaceTask> {
-    const config = this.getWorkspaceConfig(input.workspaceId)
     const tasks = await this.listWorkspaceTasks({ workspaceId: input.workspaceId, includeCompleted: true })
-    const projects = await this.listWorkspaceProjects({ workspaceId: input.workspaceId, includeCompleted: true })
-
-    const project = input.projectId ? projects.find((p) => p.id === input.projectId) : : projects[0] ?? null
 
     const assignee = input.assigneeId
       ? (await this.listWorkspacePeople(input.workspaceId)).find((p) => p.id === input.assigneeId)
@@ -259,7 +255,7 @@ export class PlaceholderGraphRepository implements PiperRepository {
       description: "",
       labels: input.labels ?? [],
       checklist: [],
-      projectId: input.projectId ?? null,
+      projectId: input.projectId ?? undefined,
       assignee: assignee
         ? {
             id: assignee.id,
@@ -268,10 +264,6 @@ export class PlaceholderGraphRepository implements PiperRepository {
             email: assignee.email ?? "unknown@example.com",
           }
         : undefined,
-      dueDate: input.dueDate ?? null,
-      startDate: input.startDate ?? null,
-      estimatePoints: null,
-      remainingPoints: null,
       createdBy: {
         id: "graph-user",
         externalId: "graph-user",
@@ -296,7 +288,8 @@ export class PlaceholderGraphRepository implements PiperRepository {
     this.taskOverrides.set(newTask.id, newTask)
     return newTask
   }
-}
+
+  async createComment(input: CreateCommentInput): Promise<CommentRef> {
     const comment: CommentRef = {
       id: `${input.workspaceId}:comment:${Date.now()}`,
       externalId: `local-${Date.now()}`,
@@ -309,12 +302,12 @@ export class PlaceholderGraphRepository implements PiperRepository {
         id: "graph-user",
         externalId: "graph-user",
         displayName: "Signed-in Microsoft user",
-        email: "graph.user@local.invalid"
-      }
-      createdAt: new Date().toISOString()
-      updatedAt: new Date().toISOString()
-      edited: false
-      mentions: []
+        email: "graph.user@local.invalid",
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      edited: false,
+      mentions: [],
     }
 
     const threadComments = this.localComments.get(input.entityId) ?? []
