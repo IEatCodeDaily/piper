@@ -30,6 +30,7 @@ export function PiperRuntimeBoundary({ children }: PiperRuntimeBoundaryProps) {
       workspaceConfigs: workspaces,
       accessTokenProvider: repositoryMode === "graph-live" ? getAccessToken : undefined,
     });
+
     setPiperRepository(repository);
     void queryClient.invalidateQueries();
   }, [getAccessToken, repositoryMode, workspaceSignature, workspaces]);

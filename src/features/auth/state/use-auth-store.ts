@@ -1,12 +1,10 @@
 import { useSyncExternalStore } from "react";
 import type { AccountInfo } from "@azure/msal-browser";
-import {
-  acquireMicrosoftGraphAccessToken,
-  getPrimaryMicrosoftAccount,
-  isMicrosoftAuthConfigured,
-  signInWithMicrosoft,
-  signOutMicrosoft,
-} from "@/features/auth/microsoft-auth";
+import { getMicrosoftAuthConfig } from "@/features/auth/auth-config";
+
+async function authModule() {
+  return import("@/features/auth/microsoft-auth");
+}
 
 export type MicrosoftAuthStatus = "unavailable" | "signed-out" | "signing-in" | "signed-in" | "error";
 
@@ -24,9 +22,11 @@ type AuthSnapshot = AuthState & {
   getAccessToken: () => Promise<string>;
 };
 
+const configured = getMicrosoftAuthConfig() !== null;
+
 const state: AuthState = {
-  status: isMicrosoftAuthConfigured() ? "signed-out" : "unavailable",
-  configured: isMicrosoftAuthConfigured(),
+  status: configured ? "signed-out" : "unavailable",
+  configured,
   account: null,
   error: null,
 };
@@ -74,6 +74,7 @@ async function initialize() {
   }
 
   try {
+    const { getPrimaryMicrosoftAccount } = await authModule();
     const account = await getPrimaryMicrosoftAccount();
     state.account = account;
     state.status = account ? "signed-in" : "signed-out";
@@ -98,6 +99,7 @@ async function signIn() {
   emitChange();
 
   try {
+    const { getPrimaryMicrosoftAccount, signInWithMicrosoft } = await authModule();
     const result = await signInWithMicrosoft();
     state.account = result.account ?? (await getPrimaryMicrosoftAccount());
     state.status = state.account ? "signed-in" : "signed-out";
@@ -112,6 +114,7 @@ async function signIn() {
 
 async function signOut() {
   try {
+    const { signOutMicrosoft } = await authModule();
     await signOutMicrosoft();
     state.account = null;
     state.status = state.configured ? "signed-out" : "unavailable";
@@ -125,6 +128,7 @@ async function signOut() {
 }
 
 async function getAccessToken() {
+  const { acquireMicrosoftGraphAccessToken } = await authModule();
   return acquireMicrosoftGraphAccessToken();
 }
 

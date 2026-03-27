@@ -70,10 +70,6 @@ export default function App() {
   const { selectedTaskId, selectTask, clearSelection } = useSelectionStore();
 
   useEffect(() => {
-    void auth.initialize();
-  }, [auth]);
-
-  useEffect(() => {
     if (!activeWorkspaceId && workspaces[0]?.id) {
       setActiveWorkspaceId(workspaces[0].id);
     }
