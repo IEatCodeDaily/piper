@@ -21,6 +21,7 @@ import { useWorkspaceStore } from "@/features/workspaces/state/use-workspace-sto
 import { ViewSwitcher } from "@/features/views/view-switcher";
 import type { WorkspaceViewId } from "@/features/views/types";
 import { useRuntimeSettings } from "@/lib/runtime/runtime-settings";
+import { FilterBar, useFilterState } from "@/features/filters";
 
 const currentUser = {
   id: "person-zephyr",
@@ -69,6 +70,14 @@ export default function App() {
   const { data: activeWorkspace, isLoading: workspaceLoading } = useActiveWorkspace();
   const { activeWorkspaceId, setActiveWorkspaceId } = useWorkspaceStore();
   const { selectedTaskId, selectTask, clearSelection } = useSelectionStore();
+  const {
+    filters,
+    toggleStatusFilter,
+    toggleAssigneeFilter,
+    toggleProjectFilter,
+    clearFilters,
+    hasActiveFilters,
+  } = useFilterState();
 
   useEffect(() => {
     if (!activeWorkspaceId && workspaces[0]?.id) {
@@ -310,15 +319,28 @@ export default function App() {
             <div className="text-sm text-[var(--on-surface-variant)]">Loading workspace data…</div>
           </SurfaceCard>
         ) : activeWorkspace ? (
-          <ViewSwitcher
-            view={currentView}
-            tasks={tasks}
-            projects={projects}
-            selectedTaskId={selectedTaskId}
-            onSelectTask={selectTask}
-            currentUserId={currentUser.id}
-            currentUserName={currentUser.name}
-          />
+          <>
+            <FilterBar
+              filters={filters}
+              onToggleStatus={toggleStatusFilter}
+              onToggleAssignee={toggleAssigneeFilter}
+              onToggleProject={toggleProjectFilter}
+              onClearFilters={clearFilters}
+              hasActiveFilters={hasActiveFilters}
+              tasks={tasks}
+              projects={projects}
+            />
+            <ViewSwitcher
+              view={currentView}
+              tasks={tasks}
+              projects={projects}
+              selectedTaskId={selectedTaskId}
+              onSelectTask={selectTask}
+              currentUserId={currentUser.id}
+              currentUserName={currentUser.name}
+              filters={filters}
+            />
+          </>
         ) : (
           <SurfaceCard>
             <div className="text-sm text-[var(--on-surface-variant)]">No workspace is currently available.</div>

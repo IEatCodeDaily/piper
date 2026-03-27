@@ -1,5 +1,7 @@
+import { useMemo } from "react";
 import type { WorkspaceProject } from "@/features/projects/types";
 import type { WorkspaceTask } from "@/features/tasks/types";
+import type { TaskFilters } from "@/features/filters/types";
 import { KanbanView } from "@/features/views/kanban-view";
 import { ListView } from "@/features/views/list-view";
 import { MyTasksView } from "@/features/views/my-tasks-view";
@@ -14,7 +16,31 @@ type ViewSwitcherProps = {
   onSelectTask: (taskId: string) => void;
   currentUserId: string;
   currentUserName: string;
+  filters?: TaskFilters;
 };
+
+function applyFilters(tasks: WorkspaceTask[], filters: TaskFilters | undefined): WorkspaceTask[] {
+  if (!filters) return tasks;
+
+  return tasks.filter((task) => {
+    // Status filter
+    if (filters.status.length > 0 && !filters.status.includes(task.status)) {
+      return false;
+    }
+
+    // Assignee filter
+    if (filters.assigneeId.length > 0 && (!task.assignee || !filters.assigneeId.includes(task.assignee.id))) {
+      return false;
+    }
+
+    // Project filter
+    if (filters.projectId.length > 0 && (!task.projectId || !filters.projectId.includes(task.projectId))) {
+      return false;
+    }
+
+    return true;
+  });
+}
 
 export function ViewSwitcher({
   view,
@@ -24,18 +50,21 @@ export function ViewSwitcher({
   onSelectTask,
   currentUserId,
   currentUserName,
+  filters,
 }: ViewSwitcherProps) {
+  const filteredTasks = useMemo(() => applyFilters(tasks, filters), [tasks, filters]);
+
   switch (view) {
     case "workspace":
-      return <ListView tasks={tasks} projects={projects} selectedTaskId={selectedTaskId} onSelectTask={onSelectTask} />;
+      return <ListView tasks={filteredTasks} projects={projects} selectedTaskId={selectedTaskId} onSelectTask={onSelectTask} />;
     case "kanban":
-      return <KanbanView tasks={tasks} projects={projects} selectedTaskId={selectedTaskId} onSelectTask={onSelectTask} />;
+      return <KanbanView tasks={filteredTasks} projects={projects} selectedTaskId={selectedTaskId} onSelectTask={onSelectTask} />;
     case "timeline":
-      return <TimelineView tasks={tasks} projects={projects} />;
+      return <TimelineView tasks={filteredTasks} projects={projects} />;
     case "my-tasks":
       return (
         <MyTasksView
-          tasks={tasks.filter((task) => task.assignee?.id === currentUserId)}
+          tasks={filteredTasks.filter((task) => task.assignee?.id === currentUserId)}
           projects={projects}
           selectedTaskId={selectedTaskId}
           onSelectTask={onSelectTask}
@@ -44,6 +73,6 @@ export function ViewSwitcher({
       );
     case "list":
     default:
-      return <ListView tasks={tasks} projects={projects} selectedTaskId={selectedTaskId} onSelectTask={onSelectTask} />;
+      return <ListView tasks={filteredTasks} projects={projects} selectedTaskId={selectedTaskId} onSelectTask={onSelectTask} />;
   }
 }
