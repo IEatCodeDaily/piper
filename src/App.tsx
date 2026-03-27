@@ -16,6 +16,7 @@ import { useWorkspaceTasks } from "@/features/tasks/hooks/use-workspace-tasks";
 import { useActiveWorkspace } from "@/features/workspaces/hooks/use-active-workspace";
 import { useWorkspaces } from "@/features/workspaces/hooks/use-workspaces";
 import { useWorkspaceCatalog } from "@/features/workspaces/runtime/workspace-catalog";
+import { WorkspaceValidationPanel } from "@/features/workspaces/runtime/workspace-validation-panel";
 import { useWorkspaceStore } from "@/features/workspaces/state/use-workspace-store";
 import { ViewSwitcher } from "@/features/views/view-switcher";
 import type { WorkspaceViewId } from "@/features/views/types";
@@ -220,6 +221,9 @@ export default function App() {
               repositoryMode={repositoryMode}
               onSelectMode={setRepositoryMode}
               onImportConfig={() => fileInputRef.current?.click()}
+              onRunValidation={() => {
+                void 0;
+              }}
               authConfigured={auth.configured}
               authStatus={auth.status}
               accountLabel={auth.account?.username ?? auth.account?.name ?? undefined}
@@ -263,6 +267,8 @@ export default function App() {
                 </div>
               </div>
             </SurfaceCard>
+
+            <WorkspaceValidationPanel workspaceId={activeWorkspace?.id ?? null} />
 
             <SurfaceCard>
               <SectionHeader

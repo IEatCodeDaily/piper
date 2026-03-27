@@ -14,11 +14,19 @@ import type { CommentRef } from "@/features/comments/types"
 import type { WorkspaceProject } from "@/features/projects/types"
 import type { WorkspaceTask } from "@/features/tasks/types"
 import type { PiperWorkspace } from "@/lib/domain/workspace"
-import type { PiperRepository, WorkspaceProjectQuery, WorkspaceTaskQuery } from "@/lib/repository/piper-repository"
+import type {
+  CreateCommentInput,
+  PiperRepository,
+  TaskUpdateInput,
+  WorkspaceProjectQuery,
+  WorkspaceTaskQuery,
+} from "@/lib/repository/piper-repository"
 
 export class PlaceholderGraphRepository implements PiperRepository {
   private readonly workspaceConfigs: WorkspaceConfig[]
   private readonly graphClient: GraphClient
+  private readonly taskOverrides = new Map<string, Partial<WorkspaceTask>>()
+  private readonly localComments = new Map<string, CommentRef[]>()
 
   constructor(options: {
     workspaceConfigs?: WorkspaceConfig[]
@@ -186,7 +194,13 @@ export class PlaceholderGraphRepository implements PiperRepository {
       this.fetchWorkspaceComments(query.workspaceId),
     ])
 
-    return attachCommentsToTasks(tasks, comments)
+    return attachCommentsToTasks(
+      tasks.map((task) => ({
+        ...task,
+        ...(this.taskOverrides.get(task.id) ?? {}),
+      })),
+      comments,
+    )
       .filter((task) => (query.projectId === undefined ? true : task.projectId === query.projectId))
       .filter((task) => (query.assigneeId === undefined ? true : task.assignee?.id === query.assigneeId))
       .filter((task) => (query.statuses === undefined ? true : query.statuses.includes(task.status)))
@@ -195,7 +209,60 @@ export class PlaceholderGraphRepository implements PiperRepository {
   }
 
   async listWorkspaceComments(workspaceId: string): Promise<CommentRef[]> {
-    return this.fetchWorkspaceComments(workspaceId)
+    const remoteComments = await this.fetchWorkspaceComments(workspaceId)
+    const localComments = Array.from(this.localComments.values()).flat()
+    return [...remoteComments, ...localComments.filter((comment) => comment.id.startsWith(`${workspaceId}:`))]
+  }
+
+  async updateTask(input: TaskUpdateInput): Promise<WorkspaceTask> {
+    const tasks = await this.listWorkspaceTasks({
+      workspaceId: input.workspaceId,
+      includeCompleted: true,
+    })
+    const existingTask = tasks.find((task) => task.id === input.taskId)
+    if (!existingTask) {
+      throw new Error(`Task '${input.taskId}' was not found in workspace '${input.workspaceId}'.`)
+    }
+
+    const updatedTask: WorkspaceTask = {
+      ...existingTask,
+      ...input.patch,
+      updatedAt: new Date().toISOString(),
+    }
+
+    this.taskOverrides.set(input.taskId, {
+      ...this.taskOverrides.get(input.taskId),
+      ...input.patch,
+      updatedAt: updatedTask.updatedAt,
+    })
+
+    return updatedTask
+  }
+
+  async createComment(input: CreateCommentInput): Promise<CommentRef> {
+    const comment: CommentRef = {
+      id: `${input.workspaceId}:comment:${Date.now()}`,
+      externalId: `local-${Date.now()}`,
+      threadId: input.entityId,
+      entityType: input.entityType,
+      entityId: input.entityId,
+      body: input.body,
+      bodyFormat: input.bodyFormat ?? "plain-text",
+      author: {
+        id: "graph-user",
+        externalId: "graph-user",
+        displayName: "Signed-in Microsoft user",
+        email: "graph.user@local.invalid",
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      edited: false,
+      mentions: [],
+    }
+
+    const threadComments = this.localComments.get(input.entityId) ?? []
+    this.localComments.set(input.entityId, [...threadComments, comment])
+    return comment
   }
 }
 

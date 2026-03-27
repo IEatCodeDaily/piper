@@ -8,6 +8,7 @@ type RuntimeControlsProps = {
   repositoryMode: RepositoryMode;
   onSelectMode: (mode: RepositoryMode) => void;
   onImportConfig: () => void;
+  onRunValidation?: () => void;
   authConfigured: boolean;
   authStatus: string;
   accountLabel?: string;
@@ -27,6 +28,7 @@ export function RuntimeControls(props: RuntimeControlsProps) {
     repositoryMode,
     onSelectMode,
     onImportConfig,
+    onRunValidation,
     authConfigured,
     authStatus,
     accountLabel,
@@ -71,6 +73,12 @@ export function RuntimeControls(props: RuntimeControlsProps) {
               <FileUp className="size-3.5" />
               Import config
             </Button>
+            {onRunValidation ? (
+              <Button size="sm" variant="secondary" onClick={() => onRunValidation()}>
+                <ServerCog className="size-3.5" />
+                Validate config
+              </Button>
+            ) : null}
             {authConfigured ? (
               authStatus === "signed-in" ? (
                 <Button size="sm" variant="secondary" onClick={() => void onSignOut()}>

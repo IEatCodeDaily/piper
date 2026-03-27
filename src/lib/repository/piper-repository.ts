@@ -18,6 +18,20 @@ export interface WorkspaceProjectQuery {
   includeCompleted?: boolean;
 }
 
+export interface TaskUpdateInput {
+  workspaceId: string;
+  taskId: string;
+  patch: Partial<Pick<WorkspaceTask, "status" | "priority" | "title" | "description" | "dueDate" | "startDate" | "labels">>;
+}
+
+export interface CreateCommentInput {
+  workspaceId: string;
+  entityType: CommentRef["entityType"];
+  entityId: string;
+  body: string;
+  bodyFormat?: CommentRef["bodyFormat"];
+}
+
 export interface PiperRepository {
   listWorkspaces(): Promise<PiperWorkspace[]>;
   getActiveWorkspace(): Promise<PiperWorkspace>;
@@ -25,6 +39,8 @@ export interface PiperRepository {
   listWorkspaceProjects(query: WorkspaceProjectQuery): Promise<WorkspaceProject[]>;
   listWorkspaceTasks(query: WorkspaceTaskQuery): Promise<WorkspaceTask[]>;
   listWorkspaceComments(workspaceId: string): Promise<CommentRef[]>;
+  updateTask(input: TaskUpdateInput): Promise<WorkspaceTask>;
+  createComment(input: CreateCommentInput): Promise<CommentRef>;
 }
 
 let defaultPiperRepository: PiperRepository | null = null;
