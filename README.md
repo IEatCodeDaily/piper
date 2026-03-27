@@ -23,6 +23,10 @@ bun install
 bun run dev
 ```
 
+Repository modes:
+- default mock repository: `bun run dev`
+- Graph-style placeholder repository: `VITE_PIPER_REPOSITORY_MODE=graph-mock bun run dev`
+
 ## Documentation
 - `AGENTS.md`
 - `docs/BRD.md`
