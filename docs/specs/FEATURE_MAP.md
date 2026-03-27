@@ -24,7 +24,7 @@
 |----|---------|----------|--------|-------|
 | MP1 | Semantic field mapping for tasks/projects | P0 | In Progress | Phase 1 config contract defines separate task/project semantic mappings |
 | MP2 | Configurable per-field renderers | P0 | In Progress | Renderer mapping contract defined per semantic field |
-| MP3 | Person/choice/date/markdown/lookup renderers | P0 | Planned | |
+| MP3 | Person/choice/date/markdown/lookup renderers | P0 | In Progress | Graph boundary and adapter now normalize person/lookup/date/choice payloads into Piper semantics |
 | MP4 | Configurable colors for status/choice fields | P1 | Planned | |
 | MP5 | View-specific field visibility/grouping | P1 | Planned | |
 
@@ -52,7 +52,7 @@
 |----|---------|----------|--------|-------|
 | DC1 | Item detail side panel | P0 | Planned | |
 | DC2 | Rich description rendering/editing | P0 | Planned | |
-| DC3 | Flat Microsoft List comments | P1 | Planned | API spike needed |
+| DC3 | Flat Microsoft List comments | P1 | In Progress | Graph boundary now includes realistic flat list-item comment payloads and mapping helpers |
 | DC4 | Parent/child relationship display | P1 | Planned | task parent optional |
 | DC5 | External attachment open | P1 | Planned | |
 | DC6 | Quick-create task | P1 | Planned | sidebar/global action |
@@ -67,3 +67,14 @@
 | SF2 | Saved/shared views | P0 | In Progress | View preset contract added to workspace schema |
 | SF3 | Search by title/metadata | P0 | Planned | |
 | SF4 | Full-text search | P2 | Planned | deferred |
+
+---
+
+## Domain 6: Microsoft Graph Integration
+
+| ID | Feature | Priority | Status | Notes |
+|----|---------|----------|--------|-------|
+| GR1 | Graph list item boundary types | P0 | In Progress | Raw Graph/SharePoint list item, identity, person, lookup, and comment shapes added |
+| GR2 | Graph-backed repository implementing `PiperRepository` | P0 | In Progress | `PlaceholderGraphRepository` maps Graph payloads into semantic Piper entities |
+| GR3 | Realistic local Graph mock payloads | P0 | In Progress | Mock Graph client and payload synthesis support adapter development without tenant auth |
+| GR4 | Delegated auth wiring | P0 | Planned | Fetch client is ready for token-provider integration but auth flow is not wired yet |

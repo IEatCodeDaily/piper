@@ -56,6 +56,12 @@ See [ADR-002: TDD Policy](./adr/002-tdd-policy.md).
 - Use shadcn/ui primitives and consistent composition patterns.
 - Keep semantic field/rendering logic in mapping modules, not scattered across components.
 
+### 2a. Graph integration notes
+- Keep all raw Microsoft Graph and SharePoint List types inside `src/lib/graph/`.
+- Use `PlaceholderGraphRepository` or `MockPiperRepository` behind the shared `PiperRepository` contract.
+- Wire delegated auth into `FetchGraphClient` by supplying an access-token provider instead of calling `fetch` directly from features.
+- Update `docs/specs/graph-integration.md` when Graph boundary types or repository behavior changes.
+
 ### 3. Config Changes
 When changing workspace config shape:
 ```bash

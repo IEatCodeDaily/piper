@@ -31,3 +31,5 @@ bun run dev
 - `docs/TESTING.md`
 - `docs/DESIGN.md`
 - `docs/specs/FEATURE_MAP.md`
+- `docs/specs/workspace-config.md`
+- `docs/specs/graph-integration.md`

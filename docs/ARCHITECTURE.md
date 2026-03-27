@@ -111,6 +111,20 @@ Responsibilities:
 - normalize people/lookup/date/choice values
 - shield UI from Graph quirks
 
+Current phase 1 boundary lives in:
+- `docs/specs/graph-integration.md`
+- `src/lib/graph/types.ts`
+- `src/lib/graph/graph-config.ts`
+- `src/lib/graph/graph-client.ts`
+- `src/lib/graph/piper-graph-adapter.ts`
+- `src/lib/graph/placeholder-graph-repository.ts`
+
+Current implementation notes:
+- Graph payloads are modeled only at the boundary layer and are not consumed directly by hooks or views.
+- `PlaceholderGraphRepository` implements `PiperRepository`, proving that a Graph-backed data source can satisfy the existing app contract.
+- `MockGraphClient` and `mock-graph-payloads.ts` provide realistic SharePoint List item, person, lookup, and flat-comment payloads for development before auth is wired.
+- `FetchGraphClient` is structured for delegated auth by accepting a token provider and issuing real `fetch` requests to Graph endpoints.
+
 ### Mapping Engine
 Responsibilities:
 - bind semantic fields to source columns
