@@ -51,10 +51,10 @@ const mockWorkspace: PiperWorkspace = {
     taskCount: mutableTasks.length,
     projectCount: mutableProjects.length,
     openTaskCount: mutableTasks.filter((task) => task.status !== "done").length,
-    overdueTaskCount: mutableTasks.filter((task) => task.dueDate !== undefined && task.dueDate < "2026-03-27" && task.status !== "done").length,
+    overdueTaskCount: mutableTasks.filter((task) => task.dueDate !== undefined && task.dueDate < new Date().toISOString().slice(0, 10) && task.status !== "done").length,
   },
-  createdAt: "2026-03-18T08:00:00.000Z",
-  updatedAt: "2026-03-27T17:40:00.000Z",
+  createdAt: mutableProjects[0]?.createdAt ?? mutableTasks[0]?.createdAt ?? new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
 };
 
 const peopleById = new Map(

@@ -468,7 +468,7 @@ export function buildGraphBackedWorkspace(args: {
       taskCount: args.tasks.length,
       projectCount: args.projects.length,
       openTaskCount: args.tasks.filter((task) => task.status !== "done").length,
-      overdueTaskCount: args.tasks.filter((task) => task.dueDate !== undefined && task.dueDate < "2026-03-27" && task.status !== "done").length,
+      overdueTaskCount: args.tasks.filter((task) => task.dueDate !== undefined && task.dueDate < new Date().toISOString().slice(0, 10) && task.status !== "done").length,
     },
     createdAt: args.projects[0]?.createdAt ?? args.tasks[0]?.createdAt ?? new Date().toISOString(),
     updatedAt:
