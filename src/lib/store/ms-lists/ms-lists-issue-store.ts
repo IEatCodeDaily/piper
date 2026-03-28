@@ -18,9 +18,7 @@ import type { WorkspaceProject } from "@/features/projects/types";
 import type { WorkspaceTask } from "@/features/tasks/types";
 import type { WorkspaceConfig } from "@/features/workspaces/types";
 import type { GraphClient } from "@/lib/graph/graph-client";
-import {
-  buildGraphListItemsUrl,
-} from "@/lib/graph/graph-config";
+// URL builders no longer needed — all calls go through GraphClient (NEV-14)
 import {
   mapGraphListItemToWorkspaceProject,
   mapGraphListItemToWorkspaceTask,
@@ -121,7 +119,7 @@ export class MsListsIssueStore implements IssueStore {
     }
 
     this.workspaceConfig = msConfig.workspaceConfig;
-    this.mapper = new MsListsSchemaMapper();
+    this.mapper = new MsListsSchemaMapper({ workspaceConfig: this.workspaceConfig });
     this.setConnectionStatus("connecting");
 
     try {
@@ -289,25 +287,27 @@ export class MsListsIssueStore implements IssueStore {
     const config = this.requireConfig();
     const mapper = this.requireMapper();
 
-    const fields = mapper.fromCreateTask(input, {
+    const graphItem = mapper.fromCreateTask(input, {
       workspaceConfig: config,
       scope: "task",
     });
 
-    const created = await this.graphWrite<{ id: string; fields: Record<string, unknown> }>(
-      `sites/${encodeURIComponent(config.lists.tasks.site.id)}/lists/${encodeURIComponent(config.lists.tasks.list.id)}/items`,
-      "POST",
-      { fields },
-    );
+    const created = await this.graphClient.createItem({
+      siteId: config.lists.tasks.site.id,
+      listId: config.lists.tasks.list.id,
+      fields: graphItem.fields,
+    });
 
     // Re-fetch the created item so we get the full mapped task
-    const fullItem = await this.graphRead<{ id: string; fields: Record<string, unknown> }>(
-      `sites/${encodeURIComponent(config.lists.tasks.site.id)}/lists/${encodeURIComponent(config.lists.tasks.list.id)}/items/${created.id}?$expand=fields`,
-    );
+    const fullItem = await this.graphClient.getItem({
+      siteId: config.lists.tasks.site.id,
+      listId: config.lists.tasks.list.id,
+      itemId: created.id,
+    });
 
     const task = mapGraphListItemToWorkspaceTask({
       workspaceConfig: config,
-      item: fullItem as Parameters<typeof mapGraphListItemToWorkspaceTask>[0]["item"],
+      item: fullItem,
     });
 
     this.taskCache.set(task.id, task);
@@ -324,25 +324,28 @@ export class MsListsIssueStore implements IssueStore {
     // Parse the Graph item ID from the Piper composite ID
     const graphItemId = this.extractGraphItemId(id);
 
-    const fields = mapper.fromTaskPatch(patch, {
+    const partialItem = mapper.fromTaskPatch(patch, {
       workspaceConfig: config,
       scope: "task",
       existingTask: existing,
     });
 
-    await this.graphWrite(
-      `sites/${encodeURIComponent(config.lists.tasks.site.id)}/lists/${encodeURIComponent(config.lists.tasks.list.id)}/items/${graphItemId}/fields`,
-      "PATCH",
-      fields,
-    );
+    await this.graphClient.updateItemFields({
+      siteId: config.lists.tasks.site.id,
+      listId: config.lists.tasks.list.id,
+      itemId: graphItemId,
+      fields: (partialItem as { fields: Record<string, unknown> }).fields ?? {},
+    });
 
-    const fullItem = await this.graphRead<{ id: string; fields: Record<string, unknown> }>(
-      `sites/${encodeURIComponent(config.lists.tasks.site.id)}/lists/${encodeURIComponent(config.lists.tasks.list.id)}/items/${graphItemId}?$expand=fields`,
-    );
+    const fullItem = await this.graphClient.getItem({
+      siteId: config.lists.tasks.site.id,
+      listId: config.lists.tasks.list.id,
+      itemId: graphItemId,
+    });
 
     const updated = mapGraphListItemToWorkspaceTask({
       workspaceConfig: config,
-      item: fullItem as Parameters<typeof mapGraphListItemToWorkspaceTask>[0]["item"],
+      item: fullItem,
     });
 
     this.taskCache.set(id, updated);
@@ -355,11 +358,11 @@ export class MsListsIssueStore implements IssueStore {
 
     const graphItemId = this.extractGraphItemId(id);
 
-    await this.graphWrite(
-      `sites/${encodeURIComponent(config.lists.tasks.site.id)}/lists/${encodeURIComponent(config.lists.tasks.list.id)}/items/${graphItemId}`,
-      "DELETE",
-      undefined,
-    );
+    await this.graphClient.deleteItem({
+      siteId: config.lists.tasks.site.id,
+      listId: config.lists.tasks.list.id,
+      itemId: graphItemId,
+    });
 
     this.taskCache.delete(id);
   }
@@ -375,21 +378,16 @@ export class MsListsIssueStore implements IssueStore {
         ? config.lists.projects.site.id
         : config.lists.tasks.site.id;
 
-    const body = mapper.fromCreateComment(input, {
-      workspaceConfig: config,
-      scope: entityType === "project" ? "project" : "task",
-    });
+    const commentBody = mapper.fromCreateComment(input) as {
+      body: { content: string; contentType: "text" | "html" };
+    };
 
-    const created = await this.graphWrite<{
-      id: string;
-      content: string;
-      createdDateTime: string;
-      createdBy: Record<string, unknown>;
-    }>(
-      `sites/${encodeURIComponent(siteId)}/lists/${encodeURIComponent(listId)}/items/${encodeURIComponent(itemId)}/comments`,
-      "POST",
-      body,
-    );
+    const created = await this.graphClient.createComment({
+      siteId,
+      listId,
+      itemId,
+      body: commentBody.body,
+    });
 
     return {
       id: created.id,
@@ -490,16 +488,20 @@ export class MsListsIssueStore implements IssueStore {
   private async refreshAll(): Promise<void> {
     const config = this.requireConfig();
 
-    const [projectItems, taskItems] = await Promise.all([
-      this.graphClient.listItems({
+    // Use listAllItems for automatic pagination (NEV-14)
+    const [projectItemsList, taskItemsList] = await Promise.all([
+      this.graphClient.listAllItems({
         siteId: config.lists.projects.site.id,
         listId: config.lists.projects.list.id,
       }),
-      this.graphClient.listItems({
+      this.graphClient.listAllItems({
         siteId: config.lists.tasks.site.id,
         listId: config.lists.tasks.list.id,
       }),
     ]);
+
+    const projectItems = { value: projectItemsList };
+    const taskItems = { value: taskItemsList };
 
     const projects = projectItems.value.map((item) =>
       mapGraphListItemToWorkspaceProject({ workspaceConfig: config, item }),
@@ -530,45 +532,6 @@ export class MsListsIssueStore implements IssueStore {
     return piperTaskId;
   }
 
-  private async graphRead<T>(path: string): Promise<T> {
-    const baseUrl = "https://graph.microsoft.com/v1.0";
-    const url = `${baseUrl}/${path}`;
-
-    // We access the graphClient's fetch through a cast since FetchGraphClient
-    // manages tokens internally.  For the real implementation this delegates
-    // to the authenticated fetch; for tests, graphClient is a MockGraphClient.
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Graph read failed: ${response.status} ${url}`);
-    }
-    return response.json() as Promise<T>;
-  }
-
-  private async graphWrite<T>(
-    path: string,
-    method: "POST" | "PATCH" | "DELETE",
-    body: unknown,
-  ): Promise<T> {
-    const baseUrl = "https://graph.microsoft.com/v1.0";
-    const url = `${baseUrl}/${path}`;
-
-    const response = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-    });
-
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`Graph ${method} failed: ${response.status} ${url} — ${text}`);
-    }
-
-    if (method === "DELETE" || response.status === 204) {
-      return undefined as T;
-    }
-
-    return response.json() as Promise<T>;
-  }
 }
 
 // ---------------------------------------------------------------------------

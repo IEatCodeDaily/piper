@@ -70,3 +70,77 @@ export function buildGraphListColumnsUrl(
 ) {
   return `${baseUrl}/sites/${encodeURIComponent(options.siteId)}/lists/${encodeURIComponent(options.listId)}/columns`
 }
+
+// ---------------------------------------------------------------------------
+// NEV-14: URL builders for single-item read, write operations, and discovery
+// ---------------------------------------------------------------------------
+
+export function buildGraphGetItemUrl(
+  baseUrl: string,
+  options: {
+    siteId: string
+    listId: string
+    itemId: string
+    selectFields?: string[]
+  },
+) {
+  const url = new URL(
+    `${baseUrl}/sites/${encodeURIComponent(options.siteId)}/lists/${encodeURIComponent(options.listId)}/items/${encodeURIComponent(options.itemId)}`,
+  )
+
+  if (options.selectFields?.length) {
+    url.searchParams.set("$expand", `fields(select=${options.selectFields.join(",")})`)
+  } else {
+    url.searchParams.set("$expand", "fields")
+  }
+
+  return url.toString()
+}
+
+export function buildGraphCreateItemUrl(
+  baseUrl: string,
+  options: { siteId: string; listId: string },
+) {
+  return `${baseUrl}/sites/${encodeURIComponent(options.siteId)}/lists/${encodeURIComponent(options.listId)}/items`
+}
+
+export function buildGraphUpdateItemFieldsUrl(
+  baseUrl: string,
+  options: { siteId: string; listId: string; itemId: string },
+) {
+  return `${baseUrl}/sites/${encodeURIComponent(options.siteId)}/lists/${encodeURIComponent(options.listId)}/items/${encodeURIComponent(options.itemId)}/fields`
+}
+
+export function buildGraphDeleteItemUrl(
+  baseUrl: string,
+  options: { siteId: string; listId: string; itemId: string },
+) {
+  return `${baseUrl}/sites/${encodeURIComponent(options.siteId)}/lists/${encodeURIComponent(options.listId)}/items/${encodeURIComponent(options.itemId)}`
+}
+
+export function buildGraphCreateCommentUrl(
+  baseUrl: string,
+  options: { siteId: string; listId: string; itemId: string },
+) {
+  return `${baseUrl}/sites/${encodeURIComponent(options.siteId)}/lists/${encodeURIComponent(options.listId)}/items/${encodeURIComponent(options.itemId)}/comments`
+}
+
+export function buildGraphSearchSitesUrl(
+  baseUrl: string,
+  query?: string,
+) {
+  const url = new URL(`${baseUrl}/sites`)
+
+  if (query) {
+    url.searchParams.set("search", query)
+  }
+
+  return url.toString()
+}
+
+export function buildGraphSiteListsUrl(
+  baseUrl: string,
+  siteId: string,
+) {
+  return `${baseUrl}/sites/${encodeURIComponent(siteId)}/lists`
+}

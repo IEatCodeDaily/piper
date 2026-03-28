@@ -146,3 +146,58 @@ export interface GraphWorkspaceContext {
   config: WorkspaceConfig;
   list: GraphListReference;
 }
+
+// ---------------------------------------------------------------------------
+// NEV-14: Request types for write operations, single-item read, and discovery
+// ---------------------------------------------------------------------------
+
+export interface GraphGetItemRequest extends GraphListReference {
+  itemId: string;
+  selectFields?: string[];
+}
+
+export interface GraphCreateItemRequest extends GraphListReference {
+  fields: GraphListItemFields;
+}
+
+export interface GraphUpdateItemFieldsRequest extends GraphListReference {
+  itemId: string;
+  fields: GraphListItemFields;
+}
+
+export interface GraphDeleteItemRequest extends GraphListReference {
+  itemId: string;
+}
+
+export interface GraphCreateCommentRequest extends GraphListReference {
+  itemId: string;
+  body: {
+    content: string;
+    contentType: "text" | "html";
+  };
+}
+
+// ---------------------------------------------------------------------------
+// NEV-14: Discovery types
+// ---------------------------------------------------------------------------
+
+export interface GraphSite {
+  id: string;
+  displayName: string;
+  name: string;
+  webUrl: string;
+  description?: string;
+}
+
+export interface GraphListInfo {
+  id: string;
+  displayName: string;
+  name: string;
+  webUrl?: string;
+  description?: string;
+  list?: {
+    template?: string;
+    hidden?: boolean;
+    contentTypesEnabled?: boolean;
+  };
+}

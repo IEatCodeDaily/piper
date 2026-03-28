@@ -68,6 +68,31 @@ class FailingGraphClient implements GraphClient {
   ): Promise<GraphCollectionResponse<GraphListItemComment>> {
     throw new Error(this.errorMessage);
   }
+  // NEV-14: new GraphClient methods
+  async getItem(_req: any): Promise<GraphListItem> {
+    throw new Error(this.errorMessage);
+  }
+  async createItem(_req: any): Promise<GraphListItem> {
+    throw new Error(this.errorMessage);
+  }
+  async updateItemFields(_req: any): Promise<GraphListItem> {
+    throw new Error(this.errorMessage);
+  }
+  async deleteItem(_req: any): Promise<void> {
+    throw new Error(this.errorMessage);
+  }
+  async createComment(_req: any): Promise<GraphListItemComment> {
+    throw new Error(this.errorMessage);
+  }
+  async listSites(_query?: string): Promise<any> {
+    throw new Error(this.errorMessage);
+  }
+  async listSiteLists(_siteId: string): Promise<any> {
+    throw new Error(this.errorMessage);
+  }
+  async listAllItems(_req: any): Promise<GraphListItem[]> {
+    throw new Error(this.errorMessage);
+  }
 }
 
 /** A GraphClient whose listItems call resolves an empty collection. */
@@ -76,6 +101,11 @@ class EmptyGraphClient extends MockGraphClient {
     _req: GraphListItemsRequest,
   ): Promise<GraphCollectionResponse<GraphListItem>> {
     return { value: [] };
+  }
+  override async listAllItems(
+    _req: GraphListItemsRequest,
+  ): Promise<GraphListItem[]> {
+    return [];
   }
 }
 
@@ -706,6 +736,14 @@ describe("MsListsIssueStore — network failure scenarios", () => {
       async listComments(_req) {
         return { value: [] };
       },
+      async getItem(_req: any) { throw new Error("429"); },
+      async createItem(_req: any): Promise<any> { throw new Error("429"); },
+      async updateItemFields(_req: any): Promise<any> { throw new Error("429"); },
+      async deleteItem(_req: any) { throw new Error("429"); },
+      async createComment(_req: any): Promise<any> { throw new Error("429"); },
+      async listSites(_q?: string) { return { value: [] as any[] }; },
+      async listSiteLists(_s: string) { return { value: [] as any[] }; },
+      async listAllItems(_req: any) { throw new Error("Graph read failed: 429 /sites/x/lists/y/items"); },
     };
 
     const store = new MsListsIssueStore(rateLimitedClient);
@@ -727,6 +765,14 @@ describe("MsListsIssueStore — network failure scenarios", () => {
       async listComments(_req) {
         return { value: [] };
       },
+      async getItem(_req: any) { throw new Error("410"); },
+      async createItem(_req: any): Promise<any> { throw new Error("410"); },
+      async updateItemFields(_req: any): Promise<any> { throw new Error("410"); },
+      async deleteItem(_req: any) { throw new Error("410"); },
+      async createComment(_req: any): Promise<any> { throw new Error("410"); },
+      async listSites(_q?: string) { return { value: [] as any[] }; },
+      async listSiteLists(_s: string) { return { value: [] as any[] }; },
+      async listAllItems(_req: any) { throw new Error("Graph read failed: 410 Gone — deltaLink expired"); },
     };
 
     const store = new MsListsIssueStore(expiredLinkClient);
