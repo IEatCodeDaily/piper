@@ -124,55 +124,73 @@ describe('workspaceConfigSchema', () => {
 
   it('rejects a renderer referencing an undeclared field', () => {
     const config = makeValidConfig()
-    // Add a renderer keyed with a name that is NOT in fields
-    config.lists.projects.renderers = {
-      nonexistentField: {
-        kind: 'text',
+    const projectsList = {
+      ...config.lists.projects,
+      renderers: {
+        nonexistentField: {
+          kind: 'text',
+        },
       },
     }
 
-    expect(() => workspaceConfigSchema.parse(config)).toThrow()
+    expect(() =>
+      workspaceConfigSchema.parse({
+        ...config,
+        lists: {
+          ...config.lists,
+          projects: projectsList,
+        },
+      }),
+    ).toThrow()
   })
 
   it('allows a renderer referencing a declared field', () => {
     const config = makeValidConfig()
-    config.lists.projects.renderers = {
-      title: {
-        kind: 'text',
+    const result = workspaceConfigSchema.parse({
+      ...config,
+      lists: {
+        ...config.lists,
+        projects: {
+          ...config.lists.projects,
+          renderers: {
+            title: {
+              kind: 'text',
+            },
+          },
+        },
       },
-    }
+    })
 
-    const result = workspaceConfigSchema.parse(config)
     expect(result.lists.projects.renderers.title.kind).toBe('text')
   })
 
   it('accepts empty fields records (schema does not enforce minimum fields)', () => {
     const config = makeValidConfig()
-    config.lists.projects.fields = {}
+    const result = workspaceConfigSchema.parse({
+      ...config,
+      lists: {
+        ...config.lists,
+        projects: {
+          ...config.lists.projects,
+          fields: {},
+        },
+      },
+    })
 
-    // z.record() allows empty objects by default in Zod v4
-    const result = workspaceConfigSchema.parse(config)
     expect(result.lists.projects.fields).toEqual({})
   })
 
   it('parses a valid config with optional fields omitted', () => {
-    // Start from minimal config (already omits all optionals: views, webUrl,
-    // domain, description, renderers, relations, etc.)
     const config = makeValidConfig()
     const result = workspaceConfigSchema.parse(config)
 
-    // workspace.description omitted
     expect(result.workspace.description).toBeUndefined()
-    // workspace.webUrl omitted
-    expect(result.workspace.webUrl).toBeUndefined()
-    // tenant.domain omitted
     expect(result.workspace.tenant.domain).toBeUndefined()
-    // views defaults to []
     expect(result.views).toEqual([])
-    // renderers defaults to {}
+    expect(result.lists.projects.site.webUrl).toBeUndefined()
+    expect(result.lists.projects.list.webUrl).toBeUndefined()
     expect(result.lists.projects.renderers).toEqual({})
     expect(result.lists.tasks.renderers).toEqual({})
-    // relations defaults to {}
     expect(result.lists.projects.relations).toEqual({})
     expect(result.lists.tasks.relations).toEqual({})
   })
