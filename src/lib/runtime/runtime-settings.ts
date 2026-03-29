@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 
-export type RepositoryMode = "mock" | "graph-mock" | "graph-live";
+export type RepositoryMode = "mock" | "graph-mock" | "graph-live" | "jira-mock" | "jira-live" | "github-mock" | "github-live";
 
 type RuntimeSettingsState = {
   repositoryMode: RepositoryMode;
@@ -44,7 +44,7 @@ function hydrate() {
   }
   hydrated = true;
   const stored = window.localStorage.getItem(storageKey) as RepositoryMode | null;
-  if (stored === "mock" || stored === "graph-mock" || stored === "graph-live") {
+  if (stored === "mock" || stored === "graph-mock" || stored === "graph-live" || stored === "jira-mock" || stored === "jira-live" || stored === "github-mock" || stored === "github-live") {
     state.repositoryMode = stored;
   }
   updateSnapshot();
