@@ -210,7 +210,7 @@ export function ListView({ tasks, projects, selectedTaskId, onSelectTask }: List
   };
 
   return (
-    <section className="rounded-[28px] bg-[var(--surface-container-high)] p-3">
+    <section data-testid="list-view" className="rounded-[28px] bg-[var(--surface-container-high)] p-3">
       <div className="surface-card overflow-hidden rounded-[24px] px-4 py-3">
         {/* Header row */}
         <div className="grid grid-cols-[minmax(0,2fr)_92px_120px_130px_110px_92px] gap-3 px-2 pb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--on-surface-variant)]">
@@ -252,6 +252,7 @@ export function ListView({ tasks, projects, selectedTaskId, onSelectTask }: List
             return (
               <div
                 key={task.id}
+                data-testid="task-row"
                 onClick={(e) => handleRowClick(task.id, e)}
                 className={cn(
                   "grid w-full grid-cols-[minmax(0,2fr)_92px_120px_130px_110px_92px] items-center gap-3 rounded-2xl px-2 py-3 text-left transition cursor-pointer",

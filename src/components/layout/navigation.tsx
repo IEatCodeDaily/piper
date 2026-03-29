@@ -25,6 +25,7 @@ export function Navigation({ items, activeItemId, onSelect, className }: Navigat
           <button
             key={id}
             type="button"
+            data-testid={`nav-item-${id}`}
             aria-current={active ? "page" : undefined}
             onClick={() => onSelect(id)}
             className={cn(

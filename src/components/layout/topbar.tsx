@@ -43,10 +43,10 @@ export function Topbar({
   };
 
   return (
-    <header className={cn("flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between", className)}>
+    <header data-testid="topbar" className={cn("flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between", className)}>
       <div className="max-w-3xl">
-        <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--on-surface-variant)]">{eyebrow}</div>
-        <h1 className="mt-3 font-display text-4xl font-bold tracking-[-0.04em] text-[var(--on-surface)]">{title}</h1>
+        <div data-testid="topbar-eyebrow" className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--on-surface-variant)]">{eyebrow}</div>
+        <h1 data-testid="topbar-title" className="mt-3 font-display text-4xl font-bold tracking-[-0.04em] text-[var(--on-surface)]">{title}</h1>
         <p className="mt-3 text-sm leading-6 text-[var(--on-surface-variant)]">{description}</p>
         {metrics.length > 0 ? (
           <div className="mt-5 flex flex-wrap gap-3">
@@ -66,6 +66,7 @@ export function Topbar({
           {onSearchChange ? (
             <>
               <input
+                data-testid="topbar-search-input"
                 type="text"
                 value={searchValue ?? ""}
                 onChange={handleSearchChange}
@@ -75,6 +76,7 @@ export function Topbar({
               {searchValue ? (
                 <button
                   type="button"
+                  data-testid="topbar-search-clear"
                   onClick={handleClear}
                   className="shrink-0 rounded-md p-1 text-[var(--on-surface-variant)] hover:bg-white/50 transition-colors"
                   aria-label="Clear search"

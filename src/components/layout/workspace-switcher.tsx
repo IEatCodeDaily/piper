@@ -23,7 +23,7 @@ export function WorkspaceSwitcher({ workspaces, activeWorkspaceId, onSelectWorks
   }
 
   return (
-    <div className={cn("space-y-2", className)}>
+    <div data-testid="workspace-switcher" className={cn("space-y-2", className)}>
       <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--on-surface-variant)]">Workspaces</div>
       <button type="button" className="glass-panel flex w-full items-center justify-between rounded-xl px-3 py-3 text-left transition hover:bg-white/70">
         <div>
@@ -40,6 +40,7 @@ export function WorkspaceSwitcher({ workspaces, activeWorkspaceId, onSelectWorks
             <button
               key={workspace.id}
               type="button"
+              data-testid={`workspace-option-${workspace.name}`}
               onClick={() => onSelectWorkspace(workspace.id)}
               className={cn(
                 "flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left text-sm transition",

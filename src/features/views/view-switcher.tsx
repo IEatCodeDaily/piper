@@ -82,22 +82,24 @@ export function ViewSwitcher({
       case "workspace":
         return <WorkspaceStreamView tasks={filteredTasks} projects={projects} selectedTaskId={selectedTaskId} onSelectTask={onSelectTask} />;
       case "kanban":
-        return <KanbanView tasks={filteredTasks} projects={projects} selectedTaskId={selectedTaskId} onSelectTask={onSelectTask} />;
+        return <div data-testid="view-kanban"><KanbanView tasks={filteredTasks} projects={projects} selectedTaskId={selectedTaskId} onSelectTask={onSelectTask} /></div>;
       case "timeline":
-        return <TimelineView tasks={filteredTasks} projects={projects} />;
+        return <div data-testid="view-timeline"><TimelineView tasks={filteredTasks} projects={projects} /></div>;
       case "my-tasks":
         return (
-          <MyTasksView
-            tasks={filteredTasks.filter((task) => task.assignee?.id === currentUserId)}
-            projects={projects}
-            selectedTaskId={selectedTaskId}
-            onSelectTask={onSelectTask}
-            currentUserName={currentUserName}
-          />
+          <div data-testid="view-my-tasks">
+            <MyTasksView
+              tasks={filteredTasks.filter((task) => task.assignee?.id === currentUserId)}
+              projects={projects}
+              selectedTaskId={selectedTaskId}
+              onSelectTask={onSelectTask}
+              currentUserName={currentUserName}
+            />
+          </div>
         );
       case "list":
       default:
-        return <ListView tasks={filteredTasks} projects={projects} selectedTaskId={selectedTaskId} onSelectTask={onSelectTask} />;
+        return <div data-testid="view-list"><ListView tasks={filteredTasks} projects={projects} selectedTaskId={selectedTaskId} onSelectTask={onSelectTask} /></div>;
     }
   })();
 

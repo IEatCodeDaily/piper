@@ -119,7 +119,7 @@ export function TaskDetailPanel({ task, project, onClose }: TaskDetailPanelProps
   ];
 
   return (
-    <SurfaceCard className="rounded-[28px] p-0 overflow-hidden">
+    <SurfaceCard data-testid="task-detail-panel" className="rounded-[28px] p-0 overflow-hidden">
       <div className="flex items-start justify-between gap-4 px-5 py-5">
         <div className="flex-1">
           <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--on-surface-variant)]">Task detail</div>
@@ -145,17 +145,20 @@ export function TaskDetailPanel({ task, project, onClose }: TaskDetailPanelProps
               >
                 Save
               </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsEditingTitle(false)}
-              >
-                Cancel
-              </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsEditingTitle(false)}
+            className="shrink-0 rounded-full"
+            aria-label="Cancel editing"
+          >
+            <X className="size-4" />
+          </Button>
             </div>
           ) : (
             <h2
+              data-testid="task-detail-title"
               className={cn(
                 "mt-3 font-display text-2xl font-semibold tracking-[-0.03em] text-[var(--on-surface)] cursor-pointer hover:text-[var(--primary)]",
               )}
@@ -172,7 +175,7 @@ export function TaskDetailPanel({ task, project, onClose }: TaskDetailPanelProps
             {project ? ` · ${project.projectCode} · ${project.title}` : ""}
           </div>
         </div>
-        <Button type="button" variant="secondary" size="icon" className="rounded-full" aria-label="Close detail panel" onClick={onClose}>
+        <Button type="button" data-testid="task-detail-close" variant="secondary" size="icon" className="rounded-full" aria-label="Close detail panel" onClick={onClose}>
           <X className="size-4" />
         </Button>
       </div>

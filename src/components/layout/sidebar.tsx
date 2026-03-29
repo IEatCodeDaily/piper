@@ -30,7 +30,7 @@ export function Sidebar({
   className,
 }: SidebarProps) {
   return (
-    <aside className={cn("flex min-h-screen flex-col bg-[var(--surface-container-low)] px-5 py-5", className)}>
+    <aside data-testid="sidebar" className={cn("flex min-h-screen flex-col bg-[var(--surface-container-low)] px-5 py-5", className)}>
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <PiperLogo />

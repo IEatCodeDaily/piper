@@ -23,7 +23,7 @@ export function KanbanView({ tasks, projects, selectedTaskId, onSelectTask }: Ka
 
   return (
     <KanbanDndContext tasks={tasks}>
-      <div className="grid gap-4 xl:grid-cols-4">
+      <div data-testid="kanban-view" className="grid gap-4 xl:grid-cols-4">
         {columns.map((column) => {
           const columnTasks = tasks.filter((task) => task.status === column.id);
 

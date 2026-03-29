@@ -57,6 +57,7 @@ export function KanbanCard({ task, projectCode, isSelected, onSelect }: KanbanCa
     >
       <button
         type="button"
+        data-testid="kanban-card"
         onClick={onSelect}
         {...listeners}
         className={cn(

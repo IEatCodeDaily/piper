@@ -9,14 +9,35 @@ type SelectionStoreSnapshot = SelectionStoreState & {
   clearSelection: () => void;
 };
 
-const state: SelectionStoreState = {
+let state: SelectionStoreState = {
   selectedTaskId: null,
 };
+
+let cachedSnapshot: SelectionStoreSnapshot | null = null;
 
 const listeners = new Set<() => void>();
 
 function emitChange() {
+  cachedSnapshot = null; // Invalidate cache so next getSnapshot() returns fresh object
   listeners.forEach((listener) => listener());
+}
+
+function selectTask(taskId: string) {
+  if (state.selectedTaskId === taskId) {
+    return;
+  }
+
+  state = { ...state, selectedTaskId: taskId };
+  emitChange();
+}
+
+function clearSelection() {
+  if (state.selectedTaskId === null) {
+    return;
+  }
+
+  state = { ...state, selectedTaskId: null };
+  emitChange();
 }
 
 function subscribe(listener: () => void) {
@@ -26,30 +47,15 @@ function subscribe(listener: () => void) {
   };
 }
 
-function selectTask(taskId: string) {
-  if (state.selectedTaskId === taskId) {
-    return;
-  }
-
-  state.selectedTaskId = taskId;
-  emitChange();
-}
-
-function clearSelection() {
-  if (state.selectedTaskId === null) {
-    return;
-  }
-
-  state.selectedTaskId = null;
-  emitChange();
-}
-
 function getSnapshot(): SelectionStoreSnapshot {
-  return {
-    selectedTaskId: state.selectedTaskId,
-    selectTask,
-    clearSelection,
-  };
+  if (cachedSnapshot === null) {
+    cachedSnapshot = {
+      selectedTaskId: state.selectedTaskId,
+      selectTask,
+      clearSelection,
+    };
+  }
+  return cachedSnapshot;
 }
 
 export function useSelectionStore() {
