@@ -2,10 +2,10 @@
 
 ## Prerequisites
 
-- Bun (preferred JavaScript package manager)
+- **Bun** (required — Tauri config and lock file depend on it)
 - Node.js 20+
-- Rust toolchain (for Tauri)
-- Tauri prerequisites for your OS
+- Rust toolchain 1.77.2+ (for Tauri v2)
+- Tauri prerequisites for your OS ([see Tauri docs](https://v2.tauri.app/start/prerequisites/))
 - Microsoft 365 tenant access for integration testing
 
 ## Setup

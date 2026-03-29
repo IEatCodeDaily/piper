@@ -16,12 +16,12 @@ import type { WorkspaceTask } from "@/features/tasks/types"
 import type { PiperWorkspace } from "@/lib/domain/workspace"
 import type {
   CreateCommentInput,
+  CreateTaskInput,
   PiperRepository,
   TaskUpdateInput,
   WorkspaceProjectQuery,
   WorkspaceTaskQuery,
 } from "@/lib/repository/piper-repository"
-
 export class PlaceholderGraphRepository implements PiperRepository {
   private readonly workspaceConfigs: WorkspaceConfig[]
   private readonly graphClient: GraphClient
@@ -237,6 +237,57 @@ export class PlaceholderGraphRepository implements PiperRepository {
     })
 
     return updatedTask
+  }
+
+  async createTask(input: CreateTaskInput): Promise<WorkspaceTask> {
+    const tasks = await this.listWorkspaceTasks({ workspaceId: input.workspaceId, includeCompleted: true })
+
+    const assignee = input.assigneeId
+      ? (await this.listWorkspacePeople(input.workspaceId)).find((p) => p.id === input.assigneeId)
+      : undefined
+
+    const newTask: WorkspaceTask = {
+      id: `task-${Date.now()}`,
+      externalId: `TASK-${tasks.length + 1}`,
+      workspaceId: input.workspaceId,
+      title: input.title,
+      status: input.status ?? "backlog",
+      priority: input.priority ?? "medium",
+      description: "",
+      labels: input.labels ?? [],
+      checklist: [],
+      projectId: input.projectId ?? undefined,
+      assignee: assignee
+        ? {
+            id: assignee.id,
+            externalId: assignee.externalId,
+            displayName: assignee.displayName,
+            email: assignee.email ?? "unknown@example.com",
+          }
+        : undefined,
+      createdBy: {
+        id: "graph-user",
+        externalId: "graph-user",
+        displayName: "Signed-in Microsoft user",
+        email: "graph.user@local.invalid",
+      },
+      modifiedBy: {
+        id: "graph-user",
+        externalId: "graph-user",
+        displayName: "Signed-in Microsoft user",
+        email: "graph.user@local.invalid",
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      path: [],
+      watchers: [],
+      attachments: [],
+      commentIds: [],
+      sortOrder: tasks.length,
+    }
+
+    this.taskOverrides.set(newTask.id, newTask)
+    return newTask
   }
 
   async createComment(input: CreateCommentInput): Promise<CommentRef> {
