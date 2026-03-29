@@ -27,7 +27,7 @@ export interface PiperWorkspace {
   name: string;
   description: string;
   tenantName: string;
-  mode: "mock" | "graph";
+  mode: "mock" | "graph" | "jira" | "github";
   sourceRefs: WorkspaceSourceRef[];
   presets: WorkspaceViewPreset[];
   summary: WorkspaceSummary;

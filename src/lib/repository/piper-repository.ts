@@ -24,6 +24,18 @@ export interface TaskUpdateInput {
   patch: Partial<Pick<WorkspaceTask, "status" | "priority" | "title" | "description" | "dueDate" | "startDate" | "labels">>;
 }
 
+export interface CreateTaskInput {
+  workspaceId: string;
+  title: string;
+  projectId?: string;
+  status?: WorkspaceTask["status"];
+  priority?: WorkspaceTask["priority"];
+  assigneeId?: string;
+  dueDate?: string;
+  startDate?: string;
+  labels?: string[];
+}
+
 export interface CreateCommentInput {
   workspaceId: string;
   entityType: CommentRef["entityType"];
@@ -40,6 +52,7 @@ export interface PiperRepository {
   listWorkspaceTasks(query: WorkspaceTaskQuery): Promise<WorkspaceTask[]>;
   listWorkspaceComments(workspaceId: string): Promise<CommentRef[]>;
   updateTask(input: TaskUpdateInput): Promise<WorkspaceTask>;
+  createTask(input: CreateTaskInput): Promise<WorkspaceTask>;
   createComment(input: CreateCommentInput): Promise<CommentRef>;
 }
 

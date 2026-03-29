@@ -9,6 +9,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { SurfaceCard } from "@/components/layout/surface-card";
 import { Topbar } from "@/components/layout/topbar";
 import { Button } from "@/components/ui/button";
+// CreateTaskModal rendered in sidebar, unused here
 import { TaskDetailPanel } from "@/features/details/task-detail-panel";
 import { useSelectionStore } from "@/features/selection/state/use-selection-store";
 import { useWorkspaceProjects } from "@/features/projects/hooks/use-workspace-projects";
@@ -21,6 +22,9 @@ import { useWorkspaceStore } from "@/features/workspaces/state/use-workspace-sto
 import { ViewSwitcher } from "@/features/views/view-switcher";
 import type { WorkspaceViewId } from "@/features/views/types";
 import { useRuntimeSettings } from "@/lib/runtime/runtime-settings";
+import { FilterBar, useFilterState } from "@/features/filters";
+// useWorkspacePeople available for future person picker
+import { useSearch, useDebounce } from "@/features/search";
 
 const currentUser = {
   id: "person-zephyr",
@@ -69,6 +73,32 @@ export default function App() {
   const { data: activeWorkspace, isLoading: workspaceLoading } = useActiveWorkspace();
   const { activeWorkspaceId, setActiveWorkspaceId } = useWorkspaceStore();
   const { selectedTaskId, selectTask, clearSelection } = useSelectionStore();
+  const {
+    filters,
+    toggleStatusFilter,
+    toggleAssigneeFilter,
+    toggleProjectFilter,
+    setSearchQuery,
+    clearFilters,
+    hasActiveFilters,
+  } = useFilterState();
+
+  const { searchQuery, setSearchQuery: setLocalSearchQuery, clearSearch } = useSearch(300);
+
+  // Debounce the search query and sync to filter state
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  
+  useEffect(() => {
+    setSearchQuery(debouncedSearchQuery);
+  }, [debouncedSearchQuery, setSearchQuery]);
+
+  const handleSearchChange = (value: string) => {
+    setLocalSearchQuery(value);
+  };
+
+  const handleSearchClear = () => {
+    clearSearch();
+  };
 
   useEffect(() => {
     if (!activeWorkspaceId && workspaces[0]?.id) {
@@ -210,6 +240,9 @@ export default function App() {
             </Button>
           }
           searchPlaceholder={activeWorkspace ? `Search ${activeWorkspace.name} tasks, projects, commands…` : undefined}
+          searchValue={searchQuery}
+          onSearchChange={handleSearchChange}
+          onSearchClear={handleSearchClear}
         />
       }
       rightRail={
@@ -310,15 +343,28 @@ export default function App() {
             <div className="text-sm text-[var(--on-surface-variant)]">Loading workspace data…</div>
           </SurfaceCard>
         ) : activeWorkspace ? (
-          <ViewSwitcher
-            view={currentView}
-            tasks={tasks}
-            projects={projects}
-            selectedTaskId={selectedTaskId}
-            onSelectTask={selectTask}
-            currentUserId={currentUser.id}
-            currentUserName={currentUser.name}
-          />
+          <>
+            <FilterBar
+              filters={filters}
+              onToggleStatus={toggleStatusFilter}
+              onToggleAssignee={toggleAssigneeFilter}
+              onToggleProject={toggleProjectFilter}
+              onClearFilters={clearFilters}
+              hasActiveFilters={hasActiveFilters}
+              tasks={tasks}
+              projects={projects}
+            />
+            <ViewSwitcher
+              view={currentView}
+              tasks={tasks}
+              projects={projects}
+              selectedTaskId={selectedTaskId}
+              onSelectTask={selectTask}
+              currentUserId={currentUser.id}
+              currentUserName={currentUser.name}
+              filters={filters}
+            />
+          </>
         ) : (
           <SurfaceCard>
             <div className="text-sm text-[var(--on-surface-variant)]">No workspace is currently available.</div>
