@@ -104,9 +104,25 @@ bun run build
 ### Commits
 Follow [Git Karma](https://karma-runner.github.io/6.4/dev/git-commit-msg.html):
 ```
-feat(workspace): add shared config loader
-feat(views): add kanban drag-and-drop status updates
-fix(graph): handle missing person field avatars
+feat(workspace): add column configuration persistence
+fix(auth): correct token refresh handling
+```
+
+Every commit MUST include a `Co-Authored-By` trailer using the agent's own name and email:
+```
+Co-Authored-By: Kyosai <raaisalpwardana+kyosai@gmail.com>
+Co-Authored-By: Synthia <raaisalpwardana+synthia@gmail.com>
+Co-Authored-By: Criteros <raaisalpwardana+criteros@gmail.com>
+```
+Do NOT use `Paperclip <noreply@paperclip.ing>`.
+
+### Pull Requests
+**Criteros owns PR review.** Every PR must be reviewed by Criteros before merge. Criteros verifies:
+- All tests pass and are properly written
+- Test coverage is adequate for the changes
+- No regressions in existing tests
+
+```
 docs(adr): add ADR-001 for Tauri stack
 chore(tooling): add bun scripts and lint config
 ```
