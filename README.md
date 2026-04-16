@@ -16,6 +16,13 @@ Goals:
 - Tailwind CSS v4
 - Microsoft Graph / SharePoint Lists integration (planned)
 
+## Prerequisites
+
+- **Bun** (required — Tauri config and lock file depend on it)
+- Node.js 20+
+- Rust toolchain 1.77.2+ (for Tauri v2)
+- [Tauri v2 prerequisites](https://v2.tauri.app/start/prerequisites/) for your OS
+
 ## Development
 ```bash
 cd ~/repo/piper

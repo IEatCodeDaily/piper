@@ -14,8 +14,18 @@ const state: SelectionStoreState = {
 };
 
 const listeners = new Set<() => void>();
+const snapshot: SelectionStoreSnapshot = {
+  selectedTaskId: state.selectedTaskId,
+  selectTask,
+  clearSelection,
+};
+
+function updateSnapshot() {
+  snapshot.selectedTaskId = state.selectedTaskId;
+}
 
 function emitChange() {
+  updateSnapshot();
   listeners.forEach((listener) => listener());
 }
 
@@ -45,11 +55,7 @@ function clearSelection() {
 }
 
 function getSnapshot(): SelectionStoreSnapshot {
-  return {
-    selectedTaskId: state.selectedTaskId,
-    selectTask,
-    clearSelection,
-  };
+  return snapshot;
 }
 
 export function useSelectionStore() {

@@ -249,6 +249,7 @@ export class PlaceholderGraphRepository implements PiperRepository {
     const newTask: WorkspaceTask = {
       id: `task-${Date.now()}`,
       externalId: `TASK-${tasks.length + 1}`,
+      workspaceId: input.workspaceId,
       title: input.title,
       status: input.status ?? "backlog",
       priority: input.priority ?? "medium",
